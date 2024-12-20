@@ -1,0 +1,46 @@
+:root,
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 1.1em;
+}
+
+#navbar {
+    background-color: #333;
+    display: flex;
+    justify-content: start;
+}
+
+#navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 10px;
+}
+
+#navbar a#active {
+    color: orangered;
+}
+
+#content {
+    padding: 10px;
+}
+
+#content p {
+    margin: 0;
+}
+
+#loginForm {
+    padding: 10px;
+}
+
+#loginForm input {
+    padding: 5px;
+    margin: 10px 0;
+    font-size: inherit;
+}
+
+#loginForm button {
+    padding: 5px;
+    margin: 10px 0;
+    font-size: inherit;
+}
