@@ -4,6 +4,6 @@
 
 ```bash
 # Requires Node.js v18+ (https://nodejs.org)
-npm install -g elm-land@latest
-elm-land server
+npm install
+npx elm-land server
 ```
