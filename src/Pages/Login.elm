@@ -1,7 +1,6 @@
 module Pages.Login exposing (Model, Msg, page)
 
 import Api
-import Dict exposing (get)
 import Effect exposing (Effect)
 import Errors exposing (ltk)
 import Gen.Params.Login exposing (Params)
@@ -9,6 +8,7 @@ import Html exposing (..)
 import Html.Attributes exposing (id, name, placeholder, type_)
 import Html.Events as Events
 import Http
+import Json.Decode as Decode
 import Json.Encode as Encode
 import Page
 import Request
@@ -32,15 +32,15 @@ page _ _ =
 
 
 type alias Model =
-    { username : Maybe String
-    , password : Maybe String
+    { username : String
+    , password : String
     , message : Maybe String
     }
 
 
 init : ( Model, Effect Msg )
 init =
-    ( { username = Nothing, password = Nothing, message = Nothing }
+    ( { username = "", password = "", message = Nothing }
     , Effect.none
     )
 
@@ -53,7 +53,50 @@ type Msg
     = ClickedLogIn
     | UsernameInput String
     | PasswordInput String
-    | GotLoginResponse (Result String String)
+    | GotLoginResponse (Result String ( String, String ))
+
+
+update : Msg -> Model -> ( Model, Effect Msg )
+update msg model =
+    case msg of
+        ClickedLogIn ->
+            logIn model
+
+        UsernameInput s ->
+            ( { model | username = s }
+            , Effect.none
+            )
+
+        PasswordInput s ->
+            ( { model | password = s }
+            , Effect.none
+            )
+
+        GotLoginResponse r ->
+            case r of
+                Err message ->
+                    ( { model | message = Just message }, Effect.none )
+
+                Ok ( username, token ) ->
+                    let
+                        user =
+                            { username = username
+                            , token = token
+                            }
+                    in
+                    ( model, Effect.fromShared (Shared.LogIn user) )
+
+
+logIn : Model -> ( Model, Effect Msg )
+logIn model =
+    ( model
+    , Http.post
+        { url = String.concat [ Api.url, "/auth/login" ]
+        , body = Http.jsonBody (loginBodyEncoder model.username model.password)
+        , expect = Http.expectStringResponse GotLoginResponse parseLoginResponse
+        }
+        |> Effect.fromCmd
+    )
 
 
 loginBodyEncoder : String -> String -> Encode.Value
@@ -64,59 +107,14 @@ loginBodyEncoder username password =
         ]
 
 
-update : Msg -> Model -> ( Model, Effect Msg )
-update msg model =
-    case msg of
-        ClickedLogIn ->
-            logIn model
-
-        UsernameInput s ->
-            ( { model | username = Just s }
-            , Effect.none
-            )
-
-        PasswordInput s ->
-            ( { model | password = Just s }
-            , Effect.none
-            )
-
-        GotLoginResponse r ->
-            case r of
-                Err s ->
-                    ( { model | message = Just s }, Effect.none )
-
-                Ok s ->
-                    ( { model | message = Just s }, Effect.none )
-
-
-logIn : Model -> ( Model, Effect Msg )
-logIn model =
-    let
-        username =
-            Maybe.withDefault "" model.username
-    in
-    let
-        password =
-            Maybe.withDefault "" model.password
-    in
-    ( model
-    , Http.post
-        { url = String.concat [ Api.url, "/auth/login" ]
-        , body = Http.jsonBody (loginBodyEncoder username password)
-        , expect = Http.expectStringResponse GotLoginResponse parseLoginResponse
-        }
-        |> Effect.fromCmd
-    )
-
-
-parseLoginResponse : Http.Response String -> Result String String
+parseLoginResponse : Http.Response String -> Result String ( String, String )
 parseLoginResponse response =
     case response of
         Http.BadUrl_ _ ->
             Err (ltk "Err, this should never happen - the login request was attempted with a bad URL")
 
         Http.Timeout_ ->
-            Err (ltk "Oh dear - it appears that the entire game server is down")
+            Err (ltk "Oh dear - it appears that the entire game server might be down")
 
         Http.NetworkError_ ->
             Err (ltk "I've encountered a network error. You might not be connected to the internet? If you are, something has gone wrong")
@@ -133,21 +131,13 @@ parseLoginResponse response =
                         ]
                         |> ltk
 
-        Http.GoodStatus_ metadata _ ->
-            extractToken metadata
+        Http.GoodStatus_ _ body ->
+            case Decode.decodeString (Decode.field "token" Decode.string) body of
+                Err _ ->
+                    Err (ltk "The server is acting as if everything is okay, but hasn't responded with a login token")
 
-
-extractToken : Http.Metadata -> Result String String
-extractToken metadata =
-    let _ = Debug.log "headers" metadata.headers in
-    case
-        get "uuid" metadata.headers
-    of
-        Nothing ->
-            Err (ltk "The server didn't repond with the correct data header")
-
-        Just uuid ->
-            Ok uuid
+                Ok token ->
+                    Ok ( "", token )
 
 
 
