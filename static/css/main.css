@@ -1,0 +1,19 @@
+:root, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: black;
+    background-image: url("../img/behance_viking_settlement.webp");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+#content {
+    margin: 50px;
+    padding: 20px;
+    background-color: rgba(22, 22, 22, 1);
+    color: whitesmoke;
+}
