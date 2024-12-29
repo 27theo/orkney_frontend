@@ -181,5 +181,5 @@ viewFormControls model =
         []
         [ Html.button
             [ Attr.disabled model.isSubmittingForm ]
-            [ Html.text "Sign in" ]
+            [ Html.text "Log in" ]
         ]
