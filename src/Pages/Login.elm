@@ -13,7 +13,7 @@ import View exposing (View)
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page shared route =
+page _ _ =
     Page.new
         { init = init
         , update = update
@@ -29,7 +29,8 @@ page shared route =
 type alias Model =
     { username : String
     , password : String
-    , isSubmittingForm : Bool
+    , message : String
+    , submitting : Bool
     }
 
 
@@ -37,7 +38,8 @@ init : () -> ( Model, Effect Msg )
 init () =
     ( { username = ""
       , password = ""
-      , isSubmittingForm = False
+      , message = ""
+      , submitting = False
       }
     , Effect.none
     )
@@ -72,7 +74,7 @@ update msg model =
             )
 
         UserSubmittedForm ->
-            ( { model | isSubmittingForm = True }
+            ( { model | submitting = True }
             , Api.Login.post
                 { onResponse = LoginApiResponded
                 , username = model.username
@@ -81,14 +83,47 @@ update msg model =
             )
 
         LoginApiResponded (Ok { token }) ->
-            ( { model | isSubmittingForm = False }
+            ( { model | submitting = False }
+            , Effect.signIn { token = token }
+            )
+
+        LoginApiResponded (Err error) ->
+            ( { model | submitting = False, message = messageFromHttpError error }
             , Effect.none
             )
 
-        LoginApiResponded (Err httpError) ->
-            ( { model | isSubmittingForm = False }
-            , Effect.none
-            )
+
+messageFromHttpError : Http.Error -> String
+messageFromHttpError error =
+    case error of
+        Http.BadUrl _ ->
+            """This should never happen - the login URL has gone bad. Please
+            try again. If the problem persists, let Theo know."""
+
+        Http.Timeout ->
+            """The login request timed out. Please try again! If this problem
+            persists, let Theo know."""
+
+        Http.NetworkError ->
+            """A network error occured. Are you connected to the internet? If
+            you are, try again. If the problem persists, let Theo know - the
+                game server could be down."""
+
+        Http.BadBody _ ->
+            """This should never happen - the request body has gone bad. Please
+            try again. If the problem persists, let Theo know."""
+
+        Http.BadStatus code ->
+            if code == 401 then
+                """I couldn't log you in with that username and password.
+                Double check that you have entered them correctly."""
+
+            else
+                [ "There seems to be a problem with the game server - it's responded with status code "
+                , String.fromInt code
+                , ". Try logging in again. If this problem persists, let Theo know."
+                ]
+                    |> String.concat
 
 
 
@@ -96,7 +131,7 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -106,7 +141,7 @@ subscriptions model =
 
 view : Model -> View Msg
 view model =
-    { title = "Pages.Login"
+    { title = "Login"
     , body = [ viewPage model ]
     }
 
@@ -116,70 +151,50 @@ viewPage model =
     Html.div [ Attr.id "content" ]
         [ Html.h1 [] [ Html.text "Log in" ]
         , viewForm model
+        , Html.p [] [ Html.text model.message ]
         ]
 
 
 viewForm : Model -> Html Msg
 viewForm model =
-    Html.form [ Attr.class "box", Html.Events.onSubmit UserSubmittedForm ]
-        [ viewFormInput
-            { field = Username
-            , value = model.username
-            }
-        , viewFormInput
-            { field = Password
-            , value = model.password
-            }
-        , viewFormControls model
+    Html.form [ Html.Events.onSubmit UserSubmittedForm ]
+        [ viewFormInput Username model.username
+        , viewFormInput Password model.password
+        , Html.button
+            [ Attr.disabled model.submitting ]
+            [ Html.text "Log in" ]
         ]
 
 
-viewFormInput :
-    { field : Field
-    , value : String
-    }
-    -> Html Msg
-viewFormInput options =
+viewFormInput : Field -> String -> Html Msg
+viewFormInput field value =
+    let
+        label =
+            case field of
+                Username ->
+                    "Username"
+
+                Password ->
+                    "Password"
+    in
+    let
+        type_ =
+            case field of
+                Username ->
+                    "username"
+
+                Password ->
+                    "password"
+    in
     Html.div
-        [ Attr.class "field" ]
-        [ Html.label [ Attr.class "label" ] [ Html.text (fromFieldToLabel options.field) ]
-        , Html.div [ Attr.class "control" ]
+        []
+        [ Html.label [] [ Html.text label ]
+        , Html.div []
             [ Html.input
-                [ Attr.class "input"
-                , Attr.type_ (fromFieldToInputType options.field)
-                , Attr.value options.value
-                , Html.Events.onInput (UserUpdatedInput options.field)
+                [ Attr.type_ type_
+                , Attr.value value
+                , Html.Events.onInput (UserUpdatedInput field)
                 ]
                 []
             ]
-        ]
-
-
-fromFieldToLabel : Field -> String
-fromFieldToLabel field =
-    case field of
-        Username ->
-            "Username"
-
-        Password ->
-            "Password"
-
-
-fromFieldToInputType : Field -> String
-fromFieldToInputType field =
-    case field of
-        Username ->
-            "username"
-
-        Password ->
-            "password"
-
-
-viewFormControls : Model -> Html Msg
-viewFormControls model =
-    Html.div
-        []
-        [ Html.button
-            [ Attr.disabled model.isSubmittingForm ]
-            [ Html.text "Log in" ]
         ]
