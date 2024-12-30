@@ -113,7 +113,7 @@ view model =
 
 viewPage : Model -> Html Msg
 viewPage model =
-    Html.div [ Attr.id "container" ]
+    Html.div [ Attr.id "content" ]
         [ Html.h1 [] [ Html.text "Log in" ]
         , viewForm model
         ]
