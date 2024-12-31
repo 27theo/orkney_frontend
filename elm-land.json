@@ -17,8 +17,6 @@
         { "name": "viewport", "content": "width=device-width, initial-scale=1.0" }
       ],
       "link": [
-        { "rel": "preload", "href": "/img/behance_viking_settlement.jpg", "as": "image" },
-        { "rel": "preload", "href": "/css/main.css", "as": "style" },
         { "rel": "stylesheet", "href": "/css/main.css" }
       ],
       "script": []
