@@ -1,4 +1,4 @@
-module Effect exposing
+port module Effect exposing
     ( Effect
     , none, batch
     , sendCmd, sendMsg
@@ -6,7 +6,7 @@ module Effect exposing
     , pushRoutePath, replaceRoutePath
     , loadExternalUrl, back
     , map, toCmd
-    , signIn, signOut
+    , clearUser, saveUser, signIn, signOut
     )
 
 {-|
@@ -22,10 +22,13 @@ module Effect exposing
 
 @docs map, toCmd
 
+@docs clearUser, saveUser, signIn, signOut
+
 -}
 
 import Browser.Navigation
 import Dict exposing (Dict)
+import Json.Encode
 import Route
 import Route.Path
 import Shared.Model
@@ -46,6 +49,8 @@ type Effect msg
     | Back
       -- SHARED
     | SendSharedMsg Shared.Msg.Msg
+      -- STORAGE
+    | SendToLocalStorage { key : String, value : Json.Encode.Value }
 
 
 
@@ -86,14 +91,49 @@ sendMsg msg =
 -- SHARED
 
 
+{-| Sign in a user.
+-}
 signIn : { token : String } -> Effect msg
 signIn options =
     SendSharedMsg (Shared.Msg.SignIn options)
 
 
+{-| Sign out a user.
+-}
 signOut : Effect msg
 signOut =
     SendSharedMsg Shared.Msg.SignOut
+
+
+
+-- STORAGE
+
+
+port sendToLocalStorage :
+    { key : String
+    , value : Json.Encode.Value
+    }
+    -> Cmd msg
+
+
+{-| Save the user to local storage.
+-}
+saveUser : String -> Effect msg
+saveUser token =
+    SendToLocalStorage
+        { key = "token"
+        , value = Json.Encode.string token
+        }
+
+
+{-| Clear the user from local storage.
+-}
+clearUser : Effect msg
+clearUser =
+    SendToLocalStorage
+        { key = "token"
+        , value = Json.Encode.null
+        }
 
 
 
@@ -187,6 +227,9 @@ map fn effect =
         SendSharedMsg sharedMsg ->
             SendSharedMsg sharedMsg
 
+        SendToLocalStorage value ->
+            SendToLocalStorage value
+
 
 {-| Elm Land depends on this function to perform your effects.
 -}
@@ -226,3 +269,6 @@ toCmd options effect =
         SendSharedMsg sharedMsg ->
             Task.succeed sharedMsg
                 |> Task.perform options.fromSharedMsg
+
+        SendToLocalStorage value ->
+            sendToLocalStorage value
