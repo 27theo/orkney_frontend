@@ -14,6 +14,6 @@ body {
 #content {
     margin: 50px;
     padding: 20px;
-    background-color: rgba(22, 22, 22, 1);
+    background-color: rgba(22, 22, 22, 0.8);
     color: whitesmoke;
 }
