@@ -28,7 +28,6 @@ port module Effect exposing
 
 import Browser.Navigation
 import Dict exposing (Dict)
-import Json.Decode
 import Json.Encode
 import Route
 import Route.Path
