@@ -93,11 +93,17 @@ update msg model =
 
         LoginApiResponded (Ok { token }) ->
             ( { model | submitting = False }
-            , Effect.signIn { token = token }
+            , Effect.signIn
+                { token = token
+                , username = model.username
+                }
             )
 
         LoginApiResponded (Err error) ->
-            ( { model | submitting = False, message = messageFromHttpError error }
+            ( { model
+                | submitting = False
+                , message = messageFromHttpError error
+              }
             , Effect.none
             )
 

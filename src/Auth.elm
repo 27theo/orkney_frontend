@@ -9,7 +9,9 @@ import View exposing (View)
 
 
 type alias User =
-    { token : String }
+    { token : String
+    , username : String
+    }
 
 
 {-| Called before an auth-only page is loaded.

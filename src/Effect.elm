@@ -28,6 +28,7 @@ port module Effect exposing
 
 import Browser.Navigation
 import Dict exposing (Dict)
+import Json.Decode
 import Json.Encode
 import Route
 import Route.Path
@@ -120,9 +121,16 @@ port sendToLocalStorage :
 -}
 saveUser : Shared.Model.User -> Effect msg
 saveUser user =
+    let
+        encodeUser =
+            Json.Encode.object
+                [ ( "token", Json.Encode.string user.token )
+                , ( "username", Json.Encode.string user.username )
+                ]
+    in
     SendToLocalStorage
-        { key = "token"
-        , value = Json.Encode.string user.token
+        { key = "user"
+        , value = encodeUser
         }
 
 
@@ -131,7 +139,7 @@ saveUser user =
 clearUser : Effect msg
 clearUser =
     SendToLocalStorage
-        { key = "token"
+        { key = "user"
         , value = Json.Encode.null
         }
 

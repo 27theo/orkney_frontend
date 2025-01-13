@@ -22,13 +22,21 @@ import Shared.Msg
 
 
 type alias Flags =
-    { token : Maybe String }
+    { user : Shared.Model.User
+    }
+
+
+decodeUser : Json.Decode.Decoder Shared.Model.User
+decodeUser =
+    Json.Decode.map2 Shared.Model.User
+        (Json.Decode.field "token" Json.Decode.string)
+        (Json.Decode.field "username" Json.Decode.string)
 
 
 decoder : Json.Decode.Decoder Flags
 decoder =
     Json.Decode.map Flags
-        (Json.Decode.field "token" (Json.Decode.maybe Json.Decode.string))
+        (Json.Decode.field "user" decodeUser)
 
 
 
@@ -41,19 +49,18 @@ type alias Model =
 
 init : Result Json.Decode.Error Flags -> Route () -> ( Model, Effect Msg )
 init flagsResult _ =
-    let
-        flags : Flags
-        flags =
-            flagsResult
-                |> Result.withDefault { token = Nothing }
-    in
-    case flags.token of
-        Just token ->
-            ( { user = Just { token = token } }
+    case flagsResult of
+        Ok flags ->
+            ( { user =
+                    Just
+                        { token = flags.user.token
+                        , username = flags.user.username
+                        }
+              }
             , Effect.none
             )
 
-        Nothing ->
+        Err _ ->
             ( { user = Nothing }
             , Effect.none
             )
