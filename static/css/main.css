@@ -1,4 +1,5 @@
-:root, body {
+:root,
+body {
     margin: 0;
     padding: 0;
 }
@@ -11,9 +12,66 @@ body {
     background-size: cover;
 }
 
+#navbar {
+    padding: 15px;
+
+    background-color: black;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+
+    &>#title {
+        font-size: 1.5rem;
+        color: white;
+        text-decoration: none;
+
+        transition: 0.3s;
+
+        &:hover {
+            color: lavender;
+        }
+    }
+
+    &>#divider {
+        margin: 0 15px;
+
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    &>#links>a {
+        margin: 0 15px 0 0;
+
+        color: white;
+        text-decoration: underline;
+
+        transition: 0.3s;
+
+        &:hover {
+            color: lavender;
+        }
+    }
+
+    &>#links:last-of-type {
+        margin-left: auto;
+
+        &>a {
+            margin: 0 0 0 15px;
+        }
+    }
+}
+
+#page {
+    margin: 0 auto;
+    padding: 15px;
+    max-width: 1000px;
+}
+
 #content {
-    margin: 50px;
-    padding: 20px;
+    padding: 15px;
+
     background-color: rgba(22, 22, 22, 0.8);
     color: whitesmoke;
 }

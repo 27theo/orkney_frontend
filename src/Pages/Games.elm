@@ -6,6 +6,7 @@ import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
 import Http
+import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
 import Shared
@@ -19,6 +20,14 @@ page user _ _ =
         , update = update user
         , subscriptions = subscriptions
         , view = view
+        }
+        |> Page.withLayout toLayout
+
+
+toLayout : Model -> Layouts.Layout Msg
+toLayout _ =
+    Layouts.Navbar
+        { user = Nothing
         }
 
 
