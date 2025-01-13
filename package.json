@@ -1,6 +1,6 @@
 {
   "name": "orkney_frontend",
   "dependencies": {
-    "elm-spa": "^6.0.6"
+    "elm-land": "^0.20.1"
   }
 }
