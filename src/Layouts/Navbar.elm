@@ -109,18 +109,20 @@ viewLeftLinks =
 
 viewRightLinks : Props -> Html Msg
 viewRightLinks props =
-    Html.div [ Attr.id "links" ]
-        [ case props.user of
-            Just _ ->
-                Html.a
+    Html.div [ Attr.id "links" ] <|
+        case props.user of
+            Just user ->
+                [ Html.a
                     [ Html.Events.onClick UserClickedLogout ]
                     [ Html.text "Logout" ]
+                , Html.p [ Attr.id "username" ] [ Html.text user.username ]
+                ]
 
             Nothing ->
-                Html.a [ Attr.href "/login" ]
+                [ Html.a [ Attr.href "/login" ]
                     [ Html.text "Login"
                     ]
-        ]
+                ]
 
 
 viewMainContent : View contentMsg -> Html contentMsg

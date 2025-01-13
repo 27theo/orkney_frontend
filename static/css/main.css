@@ -41,6 +41,13 @@ body {
         color: white;
     }
 
+    &>#links {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+    }
+
     &>#links>a {
         margin: 0 15px 0 0;
 
@@ -59,6 +66,15 @@ body {
 
         &>a {
             margin: 0 0 0 15px;
+        }
+
+        &>#username {
+            padding: 4px 8px;
+            margin: 0 0 0 15px;
+
+            color: white;
+
+            border: 1px solid white;
         }
     }
 }
