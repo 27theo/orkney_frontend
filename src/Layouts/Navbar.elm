@@ -112,9 +112,9 @@ viewRightLinks props =
     Html.div [ Attr.id "links" ]
         [ case props.user of
             Just _ ->
-                Html.button
+                Html.a
                     [ Html.Events.onClick UserClickedLogout ]
-                    [ Html.a [] [ Html.text "Logout" ] ]
+                    [ Html.text "Logout" ]
 
             Nothing ->
                 Html.a [ Attr.href "/login" ]
