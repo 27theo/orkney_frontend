@@ -11,20 +11,20 @@ import View exposing (View)
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page _ _ =
+page shared _ =
     Page.new
         { init = init
         , update = update
         , subscriptions = subscriptions
         , view = view
         }
-        |> Page.withLayout toLayout
+        |> Page.withLayout (toLayout shared)
 
 
-toLayout : Model -> Layouts.Layout Msg
-toLayout _ =
+toLayout : Shared.Model -> Model -> Layouts.Layout Msg
+toLayout shared _ =
     Layouts.Navbar
-        { user = Nothing
+        { user = shared.user
         }
 
 

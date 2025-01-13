@@ -1,6 +1,11 @@
-module Shared.Model exposing (Model)
+module Shared.Model exposing (Model, User)
+
+
+type alias User =
+    { token : String
+    }
 
 
 type alias Model =
-    { token : Maybe String
+    { user : Maybe User
     }

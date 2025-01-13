@@ -16,11 +16,9 @@ type alias User =
 -}
 onPageLoad : Shared.Model -> Route () -> Auth.Action.Action User
 onPageLoad shared route =
-    case shared.token of
-        Just token ->
-            Auth.Action.loadPageWithUser
-                { token = token
-                }
+    case shared.user of
+        Just user ->
+            Auth.Action.loadPageWithUser user
 
         Nothing ->
             Auth.Action.pushRoute

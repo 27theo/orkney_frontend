@@ -21,13 +21,13 @@ page user _ _ =
         , subscriptions = subscriptions
         , view = view
         }
-        |> Page.withLayout toLayout
+        |> Page.withLayout (toLayout user)
 
 
-toLayout : Model -> Layouts.Layout Msg
-toLayout _ =
+toLayout : Auth.User -> Model -> Layouts.Layout Msg
+toLayout user _ =
     Layouts.Navbar
-        { user = Nothing
+        { user = Just user
         }
 
 

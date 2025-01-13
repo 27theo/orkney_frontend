@@ -4,6 +4,7 @@ import Auth
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Html.Events
 import Layout exposing (Layout)
 import Route exposing (Route)
 import Shared
@@ -45,15 +46,15 @@ init _ =
 
 
 type Msg
-    = NoOp
+    = UserClickedLogout
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
-        NoOp ->
+        UserClickedLogout ->
             ( model
-            , Effect.none
+            , Effect.signOut
             )
 
 
@@ -83,12 +84,13 @@ view props _ params =
     { title = params.content.title ++ " | Lords of Orkney"
     , body =
         [ viewNavbar props
-        , viewContent params.content
+            |> Html.map params.toContentMsg
+        , viewMainContent params.content
         ]
     }
 
 
-viewNavbar : Props -> Html msg
+viewNavbar : Props -> Html Msg
 viewNavbar props =
     Html.div [ Attr.id "navbar" ]
         [ Html.a [ Attr.id "title", Attr.href "/" ] [ Html.text "Lords of Orkney" ]
@@ -98,20 +100,29 @@ viewNavbar props =
         ]
 
 
-viewLeftLinks : Html msg
+viewLeftLinks : Html Msg
 viewLeftLinks =
     Html.div [ Attr.id "links" ]
         [ Html.a [ Attr.href "/games" ] [ Html.text "Games" ]
         ]
 
 
-viewRightLinks : Props -> Html msg
-viewRightLinks _ =
+viewRightLinks : Props -> Html Msg
+viewRightLinks props =
     Html.div [ Attr.id "links" ]
-        [ Html.a [ Attr.href "/login" ] [ Html.text "Login" ]
+        [ case props.user of
+            Just _ ->
+                Html.button
+                    [ Html.Events.onClick UserClickedLogout ]
+                    [ Html.a [] [ Html.text "Logout" ] ]
+
+            Nothing ->
+                Html.a [ Attr.href "/login" ]
+                    [ Html.text "Login"
+                    ]
         ]
 
 
-viewContent : View contentMsg -> Html contentMsg
-viewContent content =
+viewMainContent : View contentMsg -> Html contentMsg
+viewMainContent content =
     Html.div [ Attr.id "page" ] content.body

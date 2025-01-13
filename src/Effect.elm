@@ -93,9 +93,9 @@ sendMsg msg =
 
 {-| Sign in a user.
 -}
-signIn : { token : String } -> Effect msg
-signIn options =
-    SendSharedMsg (Shared.Msg.SignIn options)
+signIn : Shared.Model.User -> Effect msg
+signIn user =
+    SendSharedMsg (Shared.Msg.SignIn user)
 
 
 {-| Sign out a user.
@@ -118,11 +118,11 @@ port sendToLocalStorage :
 
 {-| Save the user to local storage.
 -}
-saveUser : String -> Effect msg
-saveUser token =
+saveUser : Shared.Model.User -> Effect msg
+saveUser user =
     SendToLocalStorage
         { key = "token"
-        , value = Json.Encode.string token
+        , value = Json.Encode.string user.token
         }
 
 

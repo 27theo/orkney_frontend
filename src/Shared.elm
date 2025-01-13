@@ -47,9 +47,16 @@ init flagsResult _ =
             flagsResult
                 |> Result.withDefault { token = Nothing }
     in
-    ( { token = flags.token }
-    , Effect.none
-    )
+    case flags.token of
+        Just token ->
+            ( { user = Just { token = token } }
+            , Effect.none
+            )
+
+        Nothing ->
+            ( { user = Nothing }
+            , Effect.none
+            )
 
 
 
@@ -63,20 +70,20 @@ type alias Msg =
 update : Route () -> Msg -> Model -> ( Model, Effect Msg )
 update _ msg model =
     case msg of
-        Shared.Msg.SignIn { token } ->
-            ( { model | token = Just token }
+        Shared.Msg.SignIn user ->
+            ( { model | user = Just user }
             , Effect.batch
                 [ Effect.pushRoute
                     { path = Route.Path.Home_
                     , query = Dict.empty
                     , hash = Nothing
                     }
-                , Effect.saveUser token
+                , Effect.saveUser user
                 ]
             )
 
         Shared.Msg.SignOut ->
-            ( { model | token = Nothing }
+            ( { model | user = Nothing }
             , Effect.clearUser
             )
 

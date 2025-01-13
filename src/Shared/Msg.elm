@@ -1,6 +1,8 @@
 module Shared.Msg exposing (Msg(..))
 
+import Shared.Model
+
 
 type Msg
-    = SignIn { token : String }
+    = SignIn Shared.Model.User
     | SignOut
