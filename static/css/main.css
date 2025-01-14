@@ -21,6 +21,7 @@ body {
     flex-direction: row;
     justify-content: start;
     align-items: center;
+    gap: 15px;
 
     &>#title {
         font-size: 1.5rem;
@@ -35,8 +36,6 @@ body {
     }
 
     &>#divider {
-        margin: 0 15px;
-
         font-size: 1.5rem;
         color: white;
     }
@@ -46,11 +45,10 @@ body {
         flex-direction: row;
         justify-content: end;
         align-items: center;
+        gap: 15px;
     }
 
     &>#links>a {
-        margin: 0 15px 0 0;
-
         color: white;
         text-decoration: underline;
 
@@ -64,17 +62,12 @@ body {
     &>#links:last-of-type {
         margin-left: auto;
 
-        &>a {
-            margin: 0 0 0 15px;
-        }
-
         &>#username {
             padding: 4px 8px;
-            margin: 0 0 0 15px;
+            margin: 0;
 
-            color: white;
-
-            border: 1px solid white;
+            color: lightseagreen;
+            border: 1px solid lightseagreen;
         }
     }
 }
