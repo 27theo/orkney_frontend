@@ -1,6 +1,10 @@
 {
   "name": "orkney_frontend",
   "dependencies": {
-    "elm-land": "^0.20.1"
+    "elm-land": "^0.20.1",
+    "javascript-time-ago": "^2.5.11"
+  },
+  "devDependencies": {
+    "eslint": "^9.18.0"
   }
 }
