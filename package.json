@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
-    "eslint": "^9.18.0",
     "sass": "^1.83.4"
   }
 }
