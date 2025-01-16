@@ -13,5 +13,5 @@ npm install
 ## Development
 
 ```bash
-npx elm-land server
+npm start
 ```
