@@ -1,4 +1,4 @@
-module Api.Games exposing (GamesList, post)
+module Api.Games exposing (Game, GamesList, post)
 
 import Effect exposing (Effect)
 import Http

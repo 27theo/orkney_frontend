@@ -36,15 +36,15 @@ toLayout user _ =
 
 
 type alias Model =
-    { requestingGames : Bool
+    { games : Maybe (Result String Api.Games.GamesList)
     , user : Auth.User
     }
 
 
 init : Auth.User -> () -> ( Model, Effect Msg )
 init user () =
-    ( { requestingGames = True
-      , user = user
+    ( { user = user
+      , games = Nothing
       }
     , Effect.sendMsg ApiRequestGames
     )
@@ -70,12 +70,15 @@ update user msg model =
                 }
             )
 
-        ApiRespondedGames result ->
-            let
-                _ =
-                    Debug.log "result" result
-            in
-            ( { model | requestingGames = False }
+        ApiRespondedGames (Ok games) ->
+            ( { model | games = Just (Ok games) }
+            , Effect.none
+            )
+
+        ApiRespondedGames (Err _) ->
+            ( { model
+                | games = Just (Err "Failed to fetch games list from API. Please try again.")
+              }
             , Effect.none
             )
 
@@ -103,13 +106,48 @@ view model =
 viewPage : Model -> Html Msg
 viewPage model =
     Html.div [ Attr.id "content" ]
-        [ Html.p [] [ Html.text "/games" ]
-        , Html.p []
-            [ Html.text <|
-                if model.requestingGames then
-                    "Requesting..."
+        [ Html.p [ Attr.id "title" ] [ Html.text "Active Games" ]
+        , case model.games of
+            Nothing ->
+                Html.p [] [ Html.text "Requesting games..." ]
 
-                else
-                    "Got games list!"
+            Just (Err message) ->
+                Html.p [] [ Html.text message ]
+
+            Just (Ok games) ->
+                viewGamesList games.games
+        ]
+
+
+viewGamesList : List Api.Games.Game -> Html Msg
+viewGamesList games =
+    case games of
+        [] ->
+            Html.p [] [ Html.text "No games found." ]
+
+        _ ->
+            Html.div [ Attr.id "games" ] (List.map viewGame games)
+
+
+viewGame : Api.Games.Game -> Html Msg
+viewGame game =
+    Html.div [ Attr.id "game" ]
+        [ Html.div []
+            [ Html.span [ Attr.id "name" ] [ Html.text game.name ]
+            , Html.span [ Attr.id "players" ] [ Html.text (String.join ", " game.players) ]
+            ]
+        , Html.div []
+            [ Html.span [ Attr.id "created_at" ] [ timeAgo game.created_at ]
+            , Html.button [ Attr.id "join" ] [ Html.text "Join" ]
             ]
         ]
+
+
+timeAgo : String -> Html Msg
+timeAgo epoch =
+    case String.toInt epoch of
+        Just e ->
+            Html.node "time-ago" [ Attr.attribute "epoch" (String.fromInt (e * 1000)) ] []
+
+        Nothing ->
+            Html.span [] [ Html.text "(could not convert time)" ]
