@@ -1,0 +1,83 @@
+@import "_fonts";
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+#jumbo {
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    min-height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.8);
+
+    opacity: 0;
+    animation: fadeIn 6s ease;
+    animation-fill-mode: forwards;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    #content {
+        padding: 30px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        background-color: rgba(0, 0, 0, 0);
+
+        opacity: 0;
+        animation: fadeIn 5s ease;
+        animation-delay: 2.5s;
+        animation-fill-mode: forwards;
+
+        #title {
+            margin: 0;
+            padding: 50px 0 20px 0;
+
+            font-size: min(15vw, 5rem);
+            font-family: Perrygot;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            line-height: 1.2em;
+
+            color: whitesmoke;
+        }
+
+        #author {
+            margin: 0;
+            margin-right: 6px;
+            padding: 15px 0;
+            align-self: end;
+
+            font-size: min(6vw, 1.8rem);
+            font-family: Perrygot;
+
+            color: brown;
+
+            opacity: 0;
+            animation: fadeIn 3s ease-out;
+            animation-delay: 3s;
+            animation-fill-mode: forwards;
+
+            &::before {
+                content: "By ";
+
+                font-size: min(5vw, 1.2rem);
+                color: darkred;
+            }
+        }
+    }
+}

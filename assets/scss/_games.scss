@@ -29,8 +29,8 @@
     #name {
         font-style: italic;
 
-        ::before,
-        ::after {
+        &::before,
+        &::after {
             content: "'";
             padding: 0 1px;
         }
@@ -39,7 +39,7 @@
     #owner {
         color: lightblue;
 
-        ::before {
+        &::before {
             color: lightgrey;
             content: "Created by: "
         }
@@ -48,7 +48,7 @@
     #created_at {
         color: white;
 
-        ::before {
+        &::before {
             color: grey;
             content: "Created about "
         }
@@ -57,7 +57,7 @@
     #players {
         color: lightblue;
 
-        ::before {
+        &::before {
             color: grey;
             content: "Players: "
         }
