@@ -62,14 +62,31 @@
       }
     }
 
-    &>#join {
-      padding: 7px 10px;
+    &>#buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: end;
+      gap: 10px;
 
-      background-color: #333;
-      border: 1px #333 solid;
-      border-radius: 0;
+      &>#join {
+        padding: 7px 10px;
 
-      color: white;
+        background-color: #333;
+        border: 1px #333 solid;
+        border-radius: 0;
+
+        color: white;
+      }
+
+      &>#view {
+        padding: 7px 10px;
+
+        background-color: #333;
+        border: 1px #333 solid;
+        border-radius: 0;
+
+        color: white;
+      }
     }
   }
 }

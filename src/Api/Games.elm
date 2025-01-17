@@ -1,4 +1,4 @@
-module Api.Games exposing (Game, GamesList, post)
+module Api.Games exposing (Game, GamesList, getAll, getSingle)
 
 import Effect exposing (Effect)
 import Http
@@ -37,12 +37,12 @@ gamesListDecoder =
         (Json.Decode.field "games" (Json.Decode.list gameDecoder))
 
 
-post :
+getAll :
     { onResponse : Result Http.Error GamesList -> msg
     , token : String
     }
     -> Effect msg
-post options =
+getAll options =
     let
         headers : List Http.Header
         headers =
@@ -58,6 +58,39 @@ post options =
                 , url = "http://localhost:8080/games/"
                 , body = Http.emptyBody
                 , expect = Http.expectJson options.onResponse gamesListDecoder
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+    in
+    Effect.sendCmd cmd
+
+
+getSingle :
+    { onResponse : Result Http.Error Game -> msg
+    , token : String
+    , guid : String
+    }
+    -> Effect msg
+getSingle options =
+    let
+        headers : List Http.Header
+        headers =
+            [ Http.header "X-Api-Key" options.token
+            ]
+
+        url : String
+        url =
+            String.concat [ "http://localhost:8080/games/", options.guid ]
+
+        cmd : Cmd msg
+        cmd =
+            Http.request
+                -- TODO: Change api to an environment variable
+                { method = "GET"
+                , headers = headers
+                , url = url
+                , body = Http.emptyBody
+                , expect = Http.expectJson options.onResponse gameDecoder
                 , timeout = Nothing
                 , tracker = Nothing
                 }

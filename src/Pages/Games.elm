@@ -1,14 +1,17 @@
 module Pages.Games exposing (Model, Msg, page)
 
-import Api.Games
+import Api.Games exposing (Game, GamesList)
 import Auth
+import Dict
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Html.Events as Events
 import Http
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
+import Route.Path
 import Shared
 import View exposing (View)
 
@@ -17,7 +20,7 @@ page : Auth.User -> Shared.Model -> Route () -> Page Model Msg
 page user _ _ =
     Page.new
         { init = init user
-        , update = update user
+        , update = update
         , subscriptions = subscriptions
         , view = view
         }
@@ -36,7 +39,7 @@ toLayout user _ =
 
 
 type alias Model =
-    { games : Maybe (Result String Api.Games.GamesList)
+    { games : Maybe (Result String GamesList)
     , user : Auth.User
     }
 
@@ -46,7 +49,10 @@ init user () =
     ( { user = user
       , games = Nothing
       }
-    , Effect.sendMsg ApiRequestGames
+    , Api.Games.getAll
+        { onResponse = ApiRespondedGames
+        , token = user.token
+        }
     )
 
 
@@ -55,21 +61,14 @@ init user () =
 
 
 type Msg
-    = ApiRequestGames
-    | ApiRespondedGames (Result Http.Error Api.Games.GamesList)
+    = ApiRespondedGames (Result Http.Error GamesList)
+    | JoinGame String
+    | ViewGame String
 
 
-update : Auth.User -> Msg -> Model -> ( Model, Effect Msg )
-update user msg model =
+update : Msg -> Model -> ( Model, Effect Msg )
+update msg model =
     case msg of
-        ApiRequestGames ->
-            ( model
-            , Api.Games.post
-                { onResponse = ApiRespondedGames
-                , token = user.token
-                }
-            )
-
         ApiRespondedGames (Ok games) ->
             ( { model | games = Just (Ok games) }
             , Effect.none
@@ -77,9 +76,29 @@ update user msg model =
 
         ApiRespondedGames (Err _) ->
             ( { model
-                | games = Just (Err "Failed to fetch games list from API. Please try again.")
+                | games =
+                    Just
+                        (Err "Failed to fetch games list from API. Please try again.")
               }
             , Effect.none
+            )
+
+        JoinGame guid ->
+            ( model
+            , Effect.pushRoute
+                { path = Route.Path.Games_Guid_ { guid = guid }
+                , query = Dict.empty
+                , hash = Nothing
+                }
+            )
+
+        ViewGame guid ->
+            ( model
+            , Effect.pushRoute
+                { path = Route.Path.Games_Guid_ { guid = guid }
+                , query = Dict.empty
+                , hash = Nothing
+                }
             )
 
 
@@ -119,7 +138,7 @@ viewPage model =
         ]
 
 
-viewGamesList : List Api.Games.Game -> Html Msg
+viewGamesList : List Game -> Html Msg
 viewGamesList games =
     case games of
         [] ->
@@ -129,16 +148,25 @@ viewGamesList games =
             Html.div [ Attr.id "games" ] (List.map viewGame games)
 
 
-viewGame : Api.Games.Game -> Html Msg
+viewGame : Game -> Html Msg
 viewGame game =
     Html.div [ Attr.id "game" ]
         [ Html.div []
             [ Html.span [ Attr.id "name" ] [ Html.text game.name ]
-            , Html.span [ Attr.id "players" ] [ Html.text (String.join ", " game.players) ]
+            , Html.span
+                [ Attr.id "players" ]
+                [ Html.text (String.join ", " game.players) ]
             ]
         , Html.div []
             [ Html.span [ Attr.id "created_at" ] [ timeAgo game.created_at ]
-            , Html.button [ Attr.id "join" ] [ Html.text "Join" ]
+            , Html.div [ Attr.id "buttons" ]
+                [ Html.button
+                    [ Events.onClick (JoinGame game.guid), Attr.id "join" ]
+                    [ Html.text "Join" ]
+                , Html.button
+                    [ Events.onClick (ViewGame game.guid), Attr.id "view" ]
+                    [ Html.text "View" ]
+                ]
             ]
         ]
 
@@ -147,7 +175,9 @@ timeAgo : String -> Html Msg
 timeAgo epoch =
     case String.toInt epoch of
         Just e ->
-            Html.node "time-ago" [ Attr.attribute "epoch" (String.fromInt (e * 1000)) ] []
+            Html.node "time-ago"
+                [ Attr.attribute "epoch" (String.fromInt (e * 1000)) ]
+                []
 
         Nothing ->
             Html.span [] [ Html.text "(could not convert time)" ]
