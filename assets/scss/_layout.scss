@@ -1,0 +1,78 @@
+#navbar {
+    padding: 15px;
+
+    background-color: black;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    gap: 15px;
+
+    #title {
+        font-size: 1.5rem;
+        color: white;
+        text-decoration: none;
+
+        transition: 0.3s;
+
+        :hover {
+            color: lavender;
+        }
+    }
+
+    #divider {
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    #links {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+        gap: 15px;
+    }
+
+    #links a {
+        color: white;
+        text-decoration: underline;
+
+        transition: 0.3s;
+
+        :hover {
+            color: lavender;
+        }
+    }
+
+    #links:last-of-type {
+        margin-left: auto;
+    }
+
+    #username {
+        padding: 4px 8px;
+        margin: 0;
+
+        color: lightseagreen;
+        border: 1px solid lightseagreen;
+    }
+}
+
+#page {
+    margin: 0 auto;
+    padding: 15px;
+    max-width: 1000px;
+}
+
+#content {
+    padding: 15px;
+
+    background-color: rgba(22, 22, 22, 0.8);
+    color: whitesmoke;
+
+    #title {
+        margin: 15px 0 20px 0;
+        font-size: 1.5rem;
+        color: white;
+    }
+}
