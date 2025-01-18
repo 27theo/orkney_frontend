@@ -5,10 +5,12 @@ import Auth
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
+import Html.Events as Events
 import Http
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
+import Route.Path
 import Shared
 import Url exposing (Protocol(..))
 import View exposing (View)
@@ -61,6 +63,7 @@ init user guid () =
 
 type Msg
     = ApiRespondedGame (Result Http.Error Game)
+    | PushRoute Route.Path.Path
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -78,6 +81,11 @@ update msg model =
                 again if so.""")
               }
             , Effect.none
+            )
+
+        PushRoute route ->
+            ( model
+            , Effect.pushRoutePath route
             )
 
 
@@ -116,7 +124,12 @@ view model =
 viewPage : Model -> String -> Html Msg
 viewPage model title =
     Html.div [ Attr.id "content" ]
-        [ Html.p [ Attr.id "title" ] [ Html.text title ]
+        [ Html.button
+            [ Events.onClick (PushRoute Route.Path.Games)
+            , Attr.id "return"
+            ]
+            [ Html.text "Return" ]
+        , Html.p [ Attr.id "gametitle" ] [ Html.text title ]
         , case model.game of
             Nothing ->
                 Html.p [] [ Html.text "Requesting game information..." ]
@@ -132,10 +145,10 @@ viewPage model title =
 viewGame : Game -> Html Msg
 viewGame game =
     Html.div [ Attr.id "game" ]
-        [ Html.div []
-            [ Html.span
-                [ Attr.id "players" ]
-                [ Html.text (String.join ", " game.players) ]
+        [ Html.div [ Attr.id "playerslist" ]
+            [ Html.span [ Attr.id "players" ] []
+            , Html.ul []
+                (List.map (\p -> Html.li [] [ Html.text p ]) game.players)
             ]
         , Html.div []
             [ Html.span

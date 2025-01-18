@@ -1,8 +1,35 @@
+button {
+    padding: 7px 10px;
+
+    background-color: #333;
+    border: 1px #333 solid;
+    border-radius: 0;
+
+    color: white;
+}
+
 #games {
     display: flex;
     flex-direction: column;
     justify-content: start;
     gap: 15px;
+}
+
+#return {
+    background-color: #222;
+}
+
+#gametitle {
+    margin: 15px 0 20px 0;
+    font-size: 1.5rem;
+    color: white;
+
+    font-style: italic;
+
+    &::before,
+    &::after {
+        content: "'";
+    }
 }
 
 #game {
@@ -18,7 +45,9 @@
         align-items: end;
     }
 
-    div {
+    &>div {
+        align-self: start;
+
         display: flex;
         gap: 15px;
         flex-direction: column;
@@ -63,30 +92,21 @@
         }
     }
 
+    #playerslist {
+        ul {
+            margin: 0 0 15px 0;
+            color: lightblue;
+        }
+
+        li::marker {
+            color: grey;
+        }
+    }
+
     #buttons {
         display: flex;
         flex-direction: row;
         justify-content: end;
         gap: 10px;
-    }
-
-    #join {
-        padding: 7px 10px;
-
-        background-color: #333;
-        border: 1px #333 solid;
-        border-radius: 0;
-
-        color: white;
-    }
-
-    #view {
-        padding: 7px 10px;
-
-        background-color: #333;
-        border: 1px #333 solid;
-        border-radius: 0;
-
-        color: white;
     }
 }
