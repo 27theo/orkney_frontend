@@ -1,5 +1,15 @@
 @import "fonts";
 
+@keyframes fadeBgIn {
+    from {
+        background-color: rgba(0, 0, 0, 0);
+    }
+
+    to {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -7,6 +17,16 @@
 
     to {
         opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
     }
 }
 
@@ -32,28 +52,49 @@
 
 #enter {
     height: 100%;
-
     display: flex;
-    flex-direction: vertical;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
+}
+
+#enter div {
+    height: 100%;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: end;
 
     color: white;
     font-family: monospace;
     font-size: 2em;
 
-    text-shadow:
-        0 0 10px black,
-        0 0 20px black,
-        0 0 30px black,
-        0 0 40px black;
+    p,
+    a {
+        margin: 0;
 
-    &::before {
-        content: '[';
+        text-shadow:
+            0 0 10px black,
+            0 0 20px black,
+            0 0 30px black,
+            0 0 40px black,
+            0 0 50px black,
+            0 0 60px black;
     }
 
-    &::after {
-        content: ']';
+    a {
+        margin-top: 20px;
+        margin-right: 3px;
+
+        font-size: 0.6em;
+        color: #bbb;
+        transition: color 0.3s;
+
+        &:hover {
+            color: white;
+        }
     }
 }
 
@@ -66,8 +107,7 @@
 
     background-color: rgba(0, 0, 0, 0.8);
 
-    opacity: 0;
-    animation: fadeIn 7s ease;
+    animation: fadeBgIn 7s ease;
 
     display: flex;
     flex-direction: column;
@@ -154,5 +194,23 @@
                 filter: brightness(2);
             }
         }
+    }
+}
+
+#bottom {
+    position: absolute;
+    bottom: 20px;
+    left: 30px;
+
+    animation:
+        fadeIn 1s ease-in,
+        fadeOut 12s ease-out 3s;
+
+    p {
+        color: white;
+
+        font-family: monospace;
+        font-size: 1rem;
+        color: #555;
     }
 }

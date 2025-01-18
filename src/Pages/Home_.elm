@@ -102,7 +102,14 @@ viewPage shared =
 
     else
         Html.div [ Attr.id "enter" ]
-            [ Html.p [] [ Html.text "Click anywhere to enter..." ]
+            [ Html.div []
+                [ Html.p [ Attr.id "click" ] [ Html.text "Click anywhere to enter..." ]
+                , Html.a
+                    [ Attr.id "skip"
+                    , Events.onClick (PushRoute Route.Path.Games)
+                    ]
+                    [ Html.text "Or click here to skip to the site!" ]
+                ]
             ]
 
 
@@ -118,6 +125,11 @@ viewJumbo () =
                         [ Attr.id "sword", Attr.src "/assets/img/sword.png" ]
                         []
                     ]
+                ]
+            ]
+        , Html.div [ Attr.id "bottom" ]
+            [ Html.p [ Attr.id "skip" ]
+                [ Html.text "(Press space to skip)"
                 ]
             ]
         ]

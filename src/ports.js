@@ -30,6 +30,7 @@ export function startMusic() {
 
 export function fadeOutMusic() {
     const audio = document.getElementById("audio");
+    if (audio == null) return;
     var time = 0;
     const fadeAudio = setInterval(() => {
         time += 0.1;
