@@ -6,3 +6,4 @@ import Shared.Model
 type Msg
     = SignIn Shared.Model.User
     | SignOut
+    | StartMusic

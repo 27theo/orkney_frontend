@@ -10,6 +10,53 @@
     }
 }
 
+@keyframes whiteGlow {
+    from {
+        text-shadow: none;
+    }
+
+    to {
+        text-shadow: 2px 2px 10px #999;
+    }
+}
+
+@keyframes darkRedGlow {
+    from {
+        text-shadow: none;
+    }
+
+    to {
+        text-shadow: 2px 2px 10px darkred;
+    }
+}
+
+#enter {
+    height: 100%;
+
+    display: flex;
+    flex-direction: vertical;
+    justify-content: center;
+    align-items: center;
+
+    color: white;
+    font-family: monospace;
+    font-size: 2em;
+
+    text-shadow:
+        0 0 10px black,
+        0 0 20px black,
+        0 0 30px black,
+        0 0 40px black;
+
+    &::before {
+        content: '[';
+    }
+
+    &::after {
+        content: ']';
+    }
+}
+
 #jumbo {
     margin: 0;
     padding: 0;
@@ -21,7 +68,7 @@
 
     opacity: 0;
     animation: fadeIn 6s ease;
-    animation-fill-mode: forwards;
+    animation-delay: 2s;
 
     display: flex;
     flex-direction: column;
@@ -29,8 +76,6 @@
     align-items: center;
 
     #content {
-        padding: 30px;
-
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -40,8 +85,7 @@
 
         opacity: 0;
         animation: fadeIn 5s ease;
-        animation-delay: 2.5s;
-        animation-fill-mode: forwards;
+        animation-delay: 3.5s;
 
         #title {
             margin: 0;
@@ -53,14 +97,26 @@
             letter-spacing: 5px;
             line-height: 1.2em;
 
+            animation: whiteGlow 5s ease;
+            animation-delay: 3s;
+
             color: whitesmoke;
+        }
+
+        #under {
+            margin: 5px 10px 0 0;
+
+            display: flex;
+            flex-direction: row;
+            justify-content: end;
+            align-items: center;
+            gap: 30px;
+
+            align-self: end;
         }
 
         #author {
             margin: 0;
-            margin-right: 6px;
-            padding: 15px 0;
-            align-self: end;
 
             font-size: min(6vw, 1.8rem);
             font-family: Perrygot;
@@ -68,15 +124,34 @@
             color: brown;
 
             opacity: 0;
-            animation: fadeIn 3s ease-out;
-            animation-delay: 3s;
-            animation-fill-mode: forwards;
+            animation:
+                fadeIn 3s ease-out,
+                darkRedGlow 3s ease;
+            animation-delay: 9s;
 
             &::before {
                 content: "By ";
 
                 font-size: min(5vw, 1.2rem);
                 color: darkred;
+            }
+        }
+
+        a,
+        #sword {
+            width: 200px;
+            height: auto;
+
+            user-select: none;
+
+            opacity: 0;
+            animation: fadeIn 3s ease-out;
+            animation-delay: 5s;
+
+            transition: filter 0.4s ease-in-out;
+
+            &:hover {
+                filter: brightness(2);
             }
         }
     }

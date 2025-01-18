@@ -2,6 +2,10 @@
 @use "home";
 @use "games";
 
+* {
+    animation-fill-mode: forwards !important;
+}
+
 :root,
 body {
     margin: 0;

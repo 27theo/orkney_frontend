@@ -7,6 +7,8 @@ port module Effect exposing
     , loadExternalUrl, back
     , map, toCmd
     , clearUser, saveUser, signIn, signOut
+    , skipAnimations
+    , sendForTheMusicians, startMusic
     )
 
 {-|
@@ -23,6 +25,8 @@ port module Effect exposing
 @docs map, toCmd
 
 @docs clearUser, saveUser, signIn, signOut
+
+@docs skipAnimations
 
 -}
 
@@ -141,6 +145,27 @@ clearUser =
         { key = "user"
         , value = Json.Encode.null
         }
+
+
+
+-- GENERAL PURPOSE
+
+
+{-| Skip all animations to their end.
+-}
+port skipAnimations : () -> Cmd msg
+
+
+{-| Start the music.
+-}
+port startMusic : () -> Cmd msg
+
+
+{-| Request that we start the music.
+-}
+sendForTheMusicians : Effect msg
+sendForTheMusicians =
+    SendSharedMsg Shared.Msg.StartMusic
 
 
 

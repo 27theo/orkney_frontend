@@ -9,4 +9,5 @@ type alias User =
 
 type alias Model =
     { user : Maybe User
+    , music : Bool
     }
