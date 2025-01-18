@@ -103,7 +103,7 @@ update _ msg model =
             )
 
         Shared.Msg.FadeOutMusic ->
-            ( { model | music = True }
+            ( { model | music = False }
             , Effect.sendCmd (Effect.fadeOutMusic ())
             )
 
