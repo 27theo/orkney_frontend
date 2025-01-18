@@ -7,3 +7,4 @@ type Msg
     = SignIn Shared.Model.User
     | SignOut
     | StartMusic
+    | FadeOutMusic

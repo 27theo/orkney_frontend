@@ -67,8 +67,7 @@
     background-color: rgba(0, 0, 0, 0.8);
 
     opacity: 0;
-    animation: fadeIn 6s ease;
-    animation-delay: 2s;
+    animation: fadeIn 7s ease;
 
     display: flex;
     flex-direction: column;
@@ -85,7 +84,7 @@
 
         opacity: 0;
         animation: fadeIn 5s ease;
-        animation-delay: 3.5s;
+        animation-delay: 3s;
 
         #title {
             margin: 0;
@@ -127,7 +126,7 @@
             animation:
                 fadeIn 3s ease-out,
                 darkRedGlow 3s ease;
-            animation-delay: 9s;
+            animation-delay: 6s;
 
             &::before {
                 content: "By ";
@@ -146,8 +145,9 @@
 
             opacity: 0;
             animation: fadeIn 3s ease-out;
-            animation-delay: 5s;
+            animation-delay: 4s;
 
+            filter: brightness(0.75);
             transition: filter 0.4s ease-in-out;
 
             &:hover {

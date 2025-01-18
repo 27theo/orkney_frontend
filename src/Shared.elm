@@ -102,6 +102,11 @@ update _ msg model =
             , Effect.sendCmd (Effect.startMusic ())
             )
 
+        Shared.Msg.FadeOutMusic ->
+            ( { model | music = True }
+            , Effect.sendCmd (Effect.fadeOutMusic ())
+            )
+
 
 
 -- SUBSCRIPTIONS

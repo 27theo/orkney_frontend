@@ -23,12 +23,30 @@ export const onReady = ({ env, app }) => {
         });
 
         app.ports.startMusic.subscribe(() => {
-            const music = document.createElement("audio");
-            music.setAttribute("autoplay", "autoplay");
+            const audio = document.createElement("audio");
+            audio.setAttribute("id", "audio");
+            audio.setAttribute("autoplay", "autoplay");
             const source = document.createElement("source");
             source.setAttribute("src", "/assets/music/wrigley_faded.mp3");
-            music.appendChild(source);
-            document.getElementsByTagName("body")[0].appendChild(music);
+            audio.appendChild(source);
+            document.getElementsByTagName("body")[0].appendChild(audio);
+        });
+
+        app.ports.fadeOutMusic.subscribe(() => {
+            const audio = document.getElementById("audio");
+            var time = 0;
+            const fadeAudio = setInterval(() => {
+                time += 0.1;
+                if (audio.volume !== 0) {
+                    const dec = Math.sin((time * Math.PI) / 2);
+                    audio.volume -= 0.1;
+                }
+                if (audio.volume < 0.003) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                    clearInterval(fadeAudio);
+                }
+            }, 100);
         });
     }
 }

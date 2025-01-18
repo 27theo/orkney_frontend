@@ -8,7 +8,7 @@ port module Effect exposing
     , map, toCmd
     , clearUser, saveUser, signIn, signOut
     , skipAnimations
-    , sendForTheMusicians, startMusic
+    , fadeOutMusic, sendForTheMusicians, sendTheMusiciansAway, startMusic
     )
 
 {-|
@@ -161,11 +161,21 @@ port skipAnimations : () -> Cmd msg
 port startMusic : () -> Cmd msg
 
 
+{-| Fade out the music.
+-}
+port fadeOutMusic : () -> Cmd msg
+
+
 {-| Request that we start the music.
 -}
 sendForTheMusicians : Effect msg
 sendForTheMusicians =
     SendSharedMsg Shared.Msg.StartMusic
+
+
+sendTheMusiciansAway : Effect msg
+sendTheMusiciansAway =
+    SendSharedMsg Shared.Msg.FadeOutMusic
 
 
 

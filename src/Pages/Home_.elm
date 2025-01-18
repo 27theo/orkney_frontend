@@ -65,7 +65,10 @@ update shared msg model =
 
         PushRoute route ->
             ( model
-            , Effect.pushRoutePath route
+            , Effect.batch
+                [ Effect.pushRoutePath route
+                , Effect.sendCmd (Effect.fadeOutMusic ())
+                ]
             )
 
 
