@@ -117,7 +117,7 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "Pages.Games"
+    { title = "Games"
     , body = [ viewPage model ]
     }
 
