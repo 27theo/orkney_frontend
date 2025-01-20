@@ -130,7 +130,7 @@
             margin: 0;
             padding: 50px 0 20px 0;
 
-            font-size: min(15vw, 5rem);
+            font-size: min(10vw, 5rem);
             font-family: Perrygot;
             text-transform: uppercase;
             letter-spacing: 5px;
@@ -143,13 +143,13 @@
         }
 
         #under {
-            margin: 5px 10px 0 0;
+            padding: 5px 10px 0 0;
 
             display: flex;
             flex-direction: row;
             justify-content: end;
             align-items: center;
-            gap: 30px;
+            gap: min(4vw, 30px);
 
             align-self: end;
         }
@@ -157,7 +157,7 @@
         #author {
             margin: 0;
 
-            font-size: min(6vw, 1.8rem);
+            font-size: min(4vw, 1.8rem);
             font-family: Perrygot;
 
             color: brown;
@@ -171,14 +171,14 @@
             &::before {
                 content: "By ";
 
-                font-size: min(5vw, 1.2rem);
+                font-size: min(3vw, 1.2rem);
                 color: darkred;
             }
         }
 
         a,
         #sword {
-            width: 200px;
+            width: min(200px, 30vw);
             height: auto;
 
             user-select: none;
