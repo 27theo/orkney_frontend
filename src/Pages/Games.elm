@@ -1,5 +1,6 @@
 module Pages.Games exposing (Model, Msg, page)
 
+import Api
 import Api.Games exposing (Game, GamesList)
 import Auth
 import Dict
@@ -38,9 +39,15 @@ toLayout user _ =
 -- INIT
 
 
+type Message
+    = Failure String
+    | Success String
+
+
 type alias Model =
     { games : Maybe (Result String GamesList)
     , user : Auth.User
+    , message : Maybe Message
     }
 
 
@@ -48,11 +55,9 @@ init : Auth.User -> () -> ( Model, Effect Msg )
 init user () =
     ( { user = user
       , games = Nothing
+      , message = Nothing
       }
-    , Api.Games.getAll
-        { onResponse = ApiRespondedGames
-        , token = user.token
-        }
+    , Effect.sendMsg ApiGetGames
     )
 
 
@@ -61,14 +66,26 @@ init user () =
 
 
 type Msg
-    = ApiRespondedGames (Result Http.Error GamesList)
+    = ApiGetGames
+    | ApiRespondedGames (Result Http.Error GamesList)
     | JoinGame String
+    | JoinedGame (Result Http.Error Api.Message)
+    | LeaveGame String
+    | LeftGame (Result Http.Error Api.Message)
     | ViewGame String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
     case msg of
+        ApiGetGames ->
+            ( model
+            , Api.Games.getAll
+                { onResponse = ApiRespondedGames
+                , token = model.user.token
+                }
+            )
+
         ApiRespondedGames (Ok games) ->
             ( { model | games = Just (Ok games) }
             , Effect.none
@@ -85,11 +102,40 @@ update msg model =
 
         JoinGame guid ->
             ( model
-            , Effect.pushRoute
-                { path = Route.Path.Games_Guid_ { guid = guid }
-                , query = Dict.empty
-                , hash = Nothing
+            , Api.Games.join
+                { onResponse = JoinedGame
+                , token = model.user.token
+                , guid = guid
                 }
+            )
+
+        JoinedGame (Ok _) ->
+            ( { model | message = Just (Success "Joined game!") }
+            , Effect.sendMsg ApiGetGames
+            )
+
+        JoinedGame (Err _) ->
+            ( { model | message = Just (Failure "Failed to join game...") }
+            , Effect.none
+            )
+
+        LeaveGame guid ->
+            ( model
+            , Api.Games.leave
+                { onResponse = LeftGame
+                , token = model.user.token
+                , guid = guid
+                }
+            )
+
+        LeftGame (Ok _) ->
+            ( { model | message = Just (Success "Left game!") }
+            , Effect.sendMsg ApiGetGames
+            )
+
+        LeftGame (Err _) ->
+            ( { model | message = Just (Failure "Failed to leave game...") }
+            , Effect.none
             )
 
         ViewGame guid ->
@@ -134,22 +180,22 @@ viewPage model =
                 Html.p [] [ Html.text message ]
 
             Just (Ok games) ->
-                viewGamesList games.games
+                viewGamesList model games.games
         ]
 
 
-viewGamesList : List Game -> Html Msg
-viewGamesList games =
+viewGamesList : Model -> List Game -> Html Msg
+viewGamesList model games =
     case games of
         [] ->
             Html.p [] [ Html.text "No games found." ]
 
         _ ->
-            Html.div [ Attr.id "games" ] (List.map viewGame games)
+            Html.div [ Attr.id "games" ] (List.map (viewGame model) games)
 
 
-viewGame : Game -> Html Msg
-viewGame game =
+viewGame : Model -> Game -> Html Msg
+viewGame model game =
     Html.div [ Attr.id "game" ]
         [ Html.div []
             [ Html.span [ Attr.id "name" ] [ Html.text game.name ]
@@ -159,15 +205,39 @@ viewGame game =
             ]
         , Html.div []
             [ Html.span [ Attr.id "created_at" ] [ timeAgo game.created_at ]
-            , Html.div [ Attr.id "buttons" ]
-                [ Html.button
-                    [ Events.onClick (JoinGame game.guid), Attr.id "join" ]
-                    [ Html.text "Join" ]
-                , Html.button
-                    [ Events.onClick (ViewGame game.guid), Attr.id "view" ]
-                    [ Html.text "View" ]
-                ]
+            , viewGameButtons model game
             ]
+        ]
+
+
+viewGameButtons : Model -> Game -> Html Msg
+viewGameButtons model game =
+    let
+        joinLeaveButton : Html Msg
+        joinLeaveButton =
+            case
+                ( List.member model.user.username game.players
+                , List.length game.players > 1
+                )
+            of
+                ( True, True ) ->
+                    Html.button
+                        [ Events.onClick (LeaveGame game.guid), Attr.id "join" ]
+                        [ Html.text "Leave" ]
+
+                ( True, False ) ->
+                    Html.text ""
+
+                ( False, _ ) ->
+                    Html.button
+                        [ Events.onClick (JoinGame game.guid), Attr.id "join" ]
+                        [ Html.text "Join" ]
+    in
+    Html.div [ Attr.id "buttons" ]
+        [ joinLeaveButton
+        , Html.button
+            [ Events.onClick (ViewGame game.guid), Attr.id "view" ]
+            [ Html.text "View" ]
         ]
 
 

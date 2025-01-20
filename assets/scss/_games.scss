@@ -8,6 +8,13 @@ button {
     color: white;
 }
 
+#buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+    gap: 10px;
+}
+
 #games {
     display: flex;
     flex-direction: column;
@@ -40,6 +47,8 @@ button {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+
+    border: 1px solid dimgrey;
 
     div:last-of-type {
         align-items: end;
@@ -101,12 +110,5 @@ button {
         li::marker {
             color: grey;
         }
-    }
-
-    #buttons {
-        display: flex;
-        flex-direction: row;
-        justify-content: end;
-        gap: 10px;
     }
 }

@@ -1,5 +1,13 @@
-module Api.Games exposing (Game, GamesList, getAll, getSingle)
+module Api.Games exposing
+    ( Game
+    , GamesList
+    , getAll
+    , getSingle
+    , join
+    , leave
+    )
 
+import Api exposing (Message, messageDecoder)
 import Effect exposing (Effect)
 import Http
 import Json.Decode
@@ -91,6 +99,72 @@ getSingle options =
                 , url = url
                 , body = Http.emptyBody
                 , expect = Http.expectJson options.onResponse gameDecoder
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+    in
+    Effect.sendCmd cmd
+
+
+join :
+    { onResponse : Result Http.Error Message -> msg
+    , token : String
+    , guid : String
+    }
+    -> Effect msg
+join options =
+    let
+        headers : List Http.Header
+        headers =
+            [ Http.header "X-Api-Key" options.token
+            ]
+
+        url : String
+        url =
+            String.concat [ "http://localhost:8080/games/join/", options.guid ]
+
+        cmd : Cmd msg
+        cmd =
+            Http.request
+                -- TODO: Change api to an environment variable
+                { method = "POST"
+                , headers = headers
+                , url = url
+                , body = Http.emptyBody
+                , expect = Http.expectJson options.onResponse messageDecoder
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+    in
+    Effect.sendCmd cmd
+
+
+leave :
+    { onResponse : Result Http.Error Message -> msg
+    , token : String
+    , guid : String
+    }
+    -> Effect msg
+leave options =
+    let
+        headers : List Http.Header
+        headers =
+            [ Http.header "X-Api-Key" options.token
+            ]
+
+        url : String
+        url =
+            String.concat [ "http://localhost:8080/games/leave/", options.guid ]
+
+        cmd : Cmd msg
+        cmd =
+            Http.request
+                -- TODO: Change api to an environment variable
+                { method = "POST"
+                , headers = headers
+                , url = url
+                , body = Http.emptyBody
+                , expect = Http.expectJson options.onResponse messageDecoder
                 , timeout = Nothing
                 , tracker = Nothing
                 }

@@ -124,12 +124,15 @@ view model =
 viewPage : Model -> String -> Html Msg
 viewPage model title =
     Html.div [ Attr.id "content" ]
-        [ Html.button
-            [ Events.onClick (PushRoute Route.Path.Games)
-            , Attr.id "return"
+        [ Html.div
+            [ Attr.class "row j-between" ]
+            [ Html.p [ Attr.id "gametitle" ] [ Html.text title ]
+            , Html.button
+                [ Events.onClick (PushRoute Route.Path.Games)
+                , Attr.id "return"
+                ]
+                [ Html.text "Return to all games" ]
             ]
-            [ Html.text "Return" ]
-        , Html.p [ Attr.id "gametitle" ] [ Html.text title ]
         , case model.game of
             Nothing ->
                 Html.p [] [ Html.text "Requesting game information..." ]

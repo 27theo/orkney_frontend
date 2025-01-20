@@ -65,7 +65,10 @@
 }
 
 #content {
-    padding: 15px;
+    padding: 25px;
+
+    display: flex;
+    flex-direction: column;
 
     background-color: rgba(22, 22, 22, 0.8);
     color: whitesmoke;

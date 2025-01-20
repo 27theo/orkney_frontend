@@ -129,7 +129,7 @@ viewJumbo () =
             ]
         , Html.div [ Attr.id "bottom" ]
             [ Html.p [ Attr.id "skip" ]
-                [ Html.text "(Press space to skip)"
+                [ Html.text "(Press space to skip...)"
                 ]
             ]
         ]
