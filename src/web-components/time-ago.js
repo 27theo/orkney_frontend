@@ -12,7 +12,7 @@ window.customElements.define('time-ago',
 
         setTextContent() {
             const epoch = Number(this.getAttribute('epoch'));
-            const ago = timeAgo.format(epoch);
+            const ago = timeAgo.format(epoch * 1000);
             this.textContent = ago;
         }
     }

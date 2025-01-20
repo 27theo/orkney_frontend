@@ -272,7 +272,7 @@ timeAgo game =
         Just e ->
             Html.span []
                 [ Html.node "time-ago"
-                    [ Attr.attribute "epoch" (String.fromInt (e * 1000)) ]
+                    [ Attr.attribute "epoch" (String.fromInt e) ]
                     []
                 , Html.span [ Attr.id "owner" ] [ Html.text game.owner ]
                 ]
