@@ -199,14 +199,38 @@ viewGame model game =
     Html.div [ Attr.id "game" ]
         [ Html.div []
             [ Html.span [ Attr.id "name" ] [ Html.text game.name ]
-            , Html.span
-                [ Attr.id "players" ]
-                [ Html.text (String.join ", " game.players) ]
+            , viewPlayerList model game
             ]
         , Html.div []
-            [ Html.span [ Attr.id "created_at" ] [ timeAgo game.created_at ]
+            [ Html.span [ Attr.id "created_at" ] [ timeAgo game ]
             , viewGameButtons model game
             ]
+        ]
+
+
+viewPlayerList : Model -> Game -> Html Msg
+viewPlayerList model game =
+    let
+        players =
+            List.map
+                (\u ->
+                    Html.span
+                        [ Attr.id
+                            (if model.user.username == u then
+                                "user"
+
+                             else
+                                ""
+                            )
+                        ]
+                        [ Html.text u ]
+                )
+                game.players
+                |> List.intersperse (Html.span [] [ Html.text ", " ])
+    in
+    Html.span
+        [ Attr.id "players" ]
+        [ Html.span [] players
         ]
 
 
@@ -218,20 +242,21 @@ viewGameButtons model game =
             case
                 ( List.member model.user.username game.players
                 , List.length game.players > 1
+                , game.owner == model.user.username
                 )
             of
-                ( True, True ) ->
+                ( True, True, False ) ->
                     Html.button
                         [ Events.onClick (LeaveGame game.guid), Attr.id "join" ]
                         [ Html.text "Leave" ]
 
-                ( True, False ) ->
-                    Html.text ""
-
-                ( False, _ ) ->
+                ( False, _, _ ) ->
                     Html.button
                         [ Events.onClick (JoinGame game.guid), Attr.id "join" ]
                         [ Html.text "Join" ]
+
+                _ ->
+                    Html.text ""
     in
     Html.div [ Attr.id "buttons" ]
         [ joinLeaveButton
@@ -241,13 +266,16 @@ viewGameButtons model game =
         ]
 
 
-timeAgo : String -> Html Msg
-timeAgo epoch =
-    case String.toInt epoch of
+timeAgo : Game -> Html Msg
+timeAgo game =
+    case String.toInt game.created_at of
         Just e ->
-            Html.node "time-ago"
-                [ Attr.attribute "epoch" (String.fromInt (e * 1000)) ]
-                []
+            Html.span []
+                [ Html.node "time-ago"
+                    [ Attr.attribute "epoch" (String.fromInt (e * 1000)) ]
+                    []
+                , Html.span [ Attr.id "owner" ] [ Html.text game.owner ]
+                ]
 
         Nothing ->
-            Html.span [] [ Html.text "(could not convert time)" ]
+            Html.span [] [ Html.text "(error)" ]

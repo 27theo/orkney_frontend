@@ -75,12 +75,15 @@ button {
     }
 
     #owner {
-        color: lightblue;
+        color: grey;
 
         &::before {
-            color: lightgrey;
-            content: "Created by: "
+            content: " by "
         }
+    }
+
+    #user {
+        color: lightseagreen;
     }
 
     #created_at {
