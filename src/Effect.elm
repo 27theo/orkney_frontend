@@ -97,9 +97,9 @@ sendMsg msg =
 
 {-| Sign in a user.
 -}
-signIn : Shared.Model.User -> Effect msg
-signIn user =
-    SendSharedMsg (Shared.Msg.SignIn user)
+signIn : Shared.Model.User -> Route.Path.Path -> Effect msg
+signIn user path =
+    SendSharedMsg (Shared.Msg.SignIn user path)
 
 
 {-| Sign out a user.

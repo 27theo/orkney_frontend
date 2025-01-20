@@ -1,22 +1,24 @@
 module Pages.Login exposing (Model, Msg, page)
 
 import Api.Login
+import Dict
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
-import Html.Events
+import Html.Events as Events
 import Http
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
+import Route.Path
 import Shared
 import View exposing (View)
 
 
 page : Shared.Model -> Route () -> Page Model Msg
-page _ _ =
+page _ route =
     Page.new
-        { init = init
+        { init = init route
         , update = update
         , subscriptions = subscriptions
         , view = view
@@ -40,15 +42,29 @@ type alias Model =
     , password : String
     , message : String
     , submitting : Bool
+    , redirectTo : Route.Path.Path
     }
 
 
-init : () -> ( Model, Effect Msg )
-init () =
+init : Route () -> () -> ( Model, Effect Msg )
+init route () =
+    let
+        path =
+            case
+                Dict.get "from" route.query
+                    |> Maybe.andThen Route.Path.fromString
+            of
+                Just p ->
+                    p
+
+                _ ->
+                    Route.Path.Games
+    in
     ( { username = ""
       , password = ""
       , message = ""
       , submitting = False
+      , redirectTo = path
       }
     , Effect.none
     )
@@ -97,6 +113,7 @@ update msg model =
                 { token = token
                 , username = model.username
                 }
+                model.redirectTo
             )
 
         LoginApiResponded (Err error) ->
@@ -164,7 +181,7 @@ view model =
 viewPage : Model -> Html Msg
 viewPage model =
     Html.div [ Attr.id "content" ]
-        [ Html.h1 [] [ Html.text "Log in" ]
+        [ Html.p [ Attr.id "title" ] [ Html.text "Log in" ]
         , viewForm model
         , Html.p [] [ Html.text model.message ]
         ]
@@ -172,44 +189,26 @@ viewPage model =
 
 viewForm : Model -> Html Msg
 viewForm model =
-    Html.form [ Html.Events.onSubmit UserSubmittedForm ]
-        [ viewFormInput Username model.username
-        , viewFormInput Password model.password
-        , Html.button
-            [ Attr.disabled model.submitting ]
-            [ Html.text "Log in" ]
-        ]
-
-
-viewFormInput : Field -> String -> Html Msg
-viewFormInput field value =
-    let
-        label =
-            case field of
-                Username ->
-                    "Username"
-
-                Password ->
-                    "Password"
-    in
-    let
-        type_ =
-            case field of
-                Username ->
-                    "username"
-
-                Password ->
-                    "password"
-    in
-    Html.div
-        []
-        [ Html.label [] [ Html.text label ]
-        , Html.div []
+    Html.div [ Attr.id "form" ]
+        [ Html.form [ Events.onSubmit UserSubmittedForm ]
             [ Html.input
-                [ Attr.type_ type_
-                , Attr.value value
-                , Html.Events.onInput (UserUpdatedInput field)
+                [ Attr.placeholder "Username"
+                , Attr.type_ "username"
+                , Attr.value model.username
+                , Events.onInput (UserUpdatedInput Username)
                 ]
                 []
+            , Html.input
+                [ Attr.placeholder "Password"
+                , Attr.type_ "password"
+                , Attr.value model.password
+                , Events.onInput (UserUpdatedInput Password)
+                ]
+                []
+            , Html.button
+                [ Attr.disabled model.submitting
+                , Attr.title "Log in."
+                ]
+                [ Html.text "Log in" ]
             ]
         ]

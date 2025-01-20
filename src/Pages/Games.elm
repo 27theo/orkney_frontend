@@ -3,7 +3,6 @@ module Pages.Games exposing (Model, Msg, page)
 import Api
 import Api.Games exposing (Game, GamesList)
 import Auth
-import Dict
 import Effect exposing (Effect)
 import Html exposing (Html)
 import Html.Attributes as Attr
@@ -72,7 +71,9 @@ type Msg
     | JoinedGame (Result Http.Error Api.Message)
     | LeaveGame String
     | LeftGame (Result Http.Error Api.Message)
-    | ViewGame String
+    | DeleteGame String
+    | DeletedGame (Result Http.Error Api.Message)
+    | CreateGame
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -138,13 +139,28 @@ update msg model =
             , Effect.none
             )
 
-        ViewGame guid ->
+        DeleteGame guid ->
             ( model
-            , Effect.pushRoute
-                { path = Route.Path.Games_Guid_ { guid = guid }
-                , query = Dict.empty
-                , hash = Nothing
+            , Api.Games.delete
+                { onResponse = LeftGame
+                , token = model.user.token
+                , guid = guid
                 }
+            )
+
+        DeletedGame (Ok _) ->
+            ( { model | message = Just (Success "Left game!") }
+            , Effect.sendMsg ApiGetGames
+            )
+
+        DeletedGame (Err _) ->
+            ( { model | message = Just (Failure "Failed to leave game...") }
+            , Effect.none
+            )
+
+        CreateGame ->
+            ( model
+            , Effect.pushRoutePath Route.Path.Games_Create
             )
 
 
@@ -171,7 +187,15 @@ view model =
 viewPage : Model -> Html Msg
 viewPage model =
     Html.div [ Attr.id "content" ]
-        [ Html.p [ Attr.id "title" ] [ Html.text "Active Games" ]
+        [ Html.div [ Attr.class "row j-between a-center" ]
+            [ Html.p [ Attr.id "title" ] [ Html.text "Active Games" ]
+            , Html.button
+                [ Events.onClick CreateGame
+                , Attr.id "create"
+                , Attr.title "Navigate to a new page for game creation."
+                ]
+                [ Html.text "Create new game" ]
+            ]
         , case model.games of
             Nothing ->
                 Html.p [] [ Html.text "Requesting games..." ]
@@ -191,7 +215,65 @@ viewGamesList model games =
             Html.p [] [ Html.text "No games found." ]
 
         _ ->
-            Html.div [ Attr.id "games" ] (List.map (viewGame model) games)
+            let
+                yourOngoing =
+                    List.filter
+                        (\g ->
+                            g.is_active
+                                && List.member model.user.username g.players
+                        )
+                        games
+            in
+            let
+                yourGames =
+                    List.filter
+                        (\g ->
+                            not g.is_active
+                                && List.member model.user.username g.players
+                        )
+                        games
+            in
+            let
+                joinableGames =
+                    List.filter
+                        (\g ->
+                            not g.is_active
+                                && not (List.member model.user.username g.players)
+                        )
+                        games
+            in
+            let
+                others =
+                    List.filter
+                        (\g ->
+                            g.is_active
+                                && not (List.member model.user.username g.players)
+                        )
+                        games
+            in
+            Html.div [ Attr.id "games" ]
+                (List.concat
+                    [ viewGameSet model yourOngoing "Ongoing games"
+                    , viewGameSet model yourGames "Ready to start"
+                    , viewGameSet model joinableGames "Joinable"
+                    , viewGameSet model others "Other players' ongoing games"
+                    ]
+                )
+
+
+viewGameSet : Model -> List Game -> String -> List (Html Msg)
+viewGameSet model games header =
+    case games of
+        [] ->
+            [ Html.text "" ]
+
+        _ ->
+            List.append
+                [ Html.p []
+                    [ Html.text header
+                    ]
+                ]
+                (List.map (viewGame model) games)
 
 
 viewGame : Model -> Game -> Html Msg
@@ -202,7 +284,7 @@ viewGame model game =
             , viewPlayerList model game
             ]
         , Html.div []
-            [ Html.span [ Attr.id "created_at" ] [ timeAgo game ]
+            [ Html.span [ Attr.id "created_at" ] [ timeAgo model game ]
             , viewGameButtons model game
             ]
         ]
@@ -215,13 +297,8 @@ viewPlayerList model game =
             List.map
                 (\u ->
                     Html.span
-                        [ Attr.id
-                            (if model.user.username == u then
-                                "user"
-
-                             else
-                                ""
-                            )
+                        [ Attr.classList
+                            [ ( "user", model.user.username == u ) ]
                         ]
                         [ Html.text u ]
                 )
@@ -236,45 +313,98 @@ viewPlayerList model game =
 
 viewGameButtons : Model -> Game -> Html Msg
 viewGameButtons model game =
-    let
-        joinLeaveButton : Html Msg
-        joinLeaveButton =
-            case
-                ( List.member model.user.username game.players
-                , List.length game.players > 1
-                , game.owner == model.user.username
-                )
-            of
-                ( True, True, False ) ->
-                    Html.button
-                        [ Events.onClick (LeaveGame game.guid), Attr.id "join" ]
-                        [ Html.text "Leave" ]
-
-                ( False, _, _ ) ->
-                    Html.button
-                        [ Events.onClick (JoinGame game.guid), Attr.id "join" ]
-                        [ Html.text "Join" ]
-
-                _ ->
-                    Html.text ""
-    in
     Html.div [ Attr.id "buttons" ]
-        [ joinLeaveButton
-        , Html.button
-            [ Events.onClick (ViewGame game.guid), Attr.id "view" ]
-            [ Html.text "View" ]
+        [ joinLeaveDelete model game
+        , playWatchStart model game
         ]
 
 
-timeAgo : Game -> Html Msg
-timeAgo game =
+joinLeaveDelete : Model -> Game -> Html Msg
+joinLeaveDelete model game =
+    case
+        [ List.member model.user.username game.players
+        , game.owner == model.user.username
+        , List.length game.players > 1
+        , game.is_active
+        ]
+    of
+        [ True, False, True, False ] ->
+            Html.button
+                [ Events.onClick (LeaveGame game.guid)
+                , Attr.title "Leave the game. As the game is still inactive, you can re-join."
+                ]
+                [ Html.text "Leave" ]
+
+        [ False, _, _, False ] ->
+            Html.button
+                [ Events.onClick (JoinGame game.guid)
+                , Attr.id "join"
+                , Attr.title "Join the game."
+                ]
+                [ Html.text "Join" ]
+
+        [ _, True, _, False ] ->
+            -- TODO: Confirm deletion upon click
+            Html.button
+                [ Events.onClick (DeleteGame game.guid)
+                , Attr.id "delete"
+                , Attr.title "Delete the game. This is irreversible."
+                ]
+                [ Html.text "Delete" ]
+
+        _ ->
+            Html.text ""
+
+
+playWatchStart : Model -> Game -> Html Msg
+playWatchStart model game =
+    case
+        ( List.member model.user.username game.players
+        , game.is_active
+        , model.user.username == game.owner
+        )
+    of
+        ( True, True, _ ) ->
+            -- TODO
+            Html.button
+                [ Attr.id "play"
+                , Attr.title "Navigate to the board in order to play the game."
+                ]
+                [ Html.text "Play" ]
+
+        ( False, True, _ ) ->
+            -- TODO
+            Html.button
+                [ Attr.id "watch"
+                , Attr.title "Spectate the game."
+                ]
+                [ Html.text "Watch" ]
+
+        ( _, False, True ) ->
+            -- TODO
+            Html.button
+                [ Attr.id "start"
+                , Attr.title "Start the game. Players will no longer be able to join."
+                ]
+                [ Html.text "Start" ]
+
+        _ ->
+            Html.text ""
+
+
+timeAgo : Model -> Game -> Html Msg
+timeAgo model game =
     case String.toInt game.created_at of
         Just e ->
             Html.span []
                 [ Html.node "time-ago"
                     [ Attr.attribute "epoch" (String.fromInt e) ]
                     []
-                , Html.span [ Attr.id "owner" ] [ Html.text game.owner ]
+                , Html.span
+                    [ Attr.id "owner"
+                    , Attr.classList [ ( "user", model.user.username == game.owner ) ]
+                    ]
+                    [ Html.text game.owner ]
                 ]
 
         Nothing ->

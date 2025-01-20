@@ -115,6 +115,7 @@ viewPage shared =
 
 viewJumbo : () -> Html Msg
 viewJumbo () =
+    -- TODO: Add link to the Wrigley sisters' performance
     Html.div [ Attr.id "jumbo" ]
         [ Html.div [ Attr.id "content" ]
             [ Html.p [ Attr.id "title" ] [ Html.text "Lords of Orkney" ]

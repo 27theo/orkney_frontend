@@ -1,6 +1,8 @@
 module Api.Games exposing
     ( Game
     , GamesList
+    , create
+    , delete
     , getAll
     , getSingle
     , join
@@ -11,6 +13,7 @@ import Api exposing (Message, messageDecoder)
 import Effect exposing (Effect)
 import Http
 import Json.Decode
+import Json.Encode
 
 
 type alias Game =
@@ -155,6 +158,78 @@ leave options =
         url : String
         url =
             String.concat [ "http://localhost:8080/games/leave/", options.guid ]
+
+        cmd : Cmd msg
+        cmd =
+            Http.request
+                -- TODO: Change api to an environment variable
+                { method = "POST"
+                , headers = headers
+                , url = url
+                , body = Http.emptyBody
+                , expect = Http.expectJson options.onResponse messageDecoder
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+    in
+    Effect.sendCmd cmd
+
+
+create :
+    { onResponse : Result Http.Error Message -> msg
+    , token : String
+    , name : String
+    }
+    -> Effect msg
+create options =
+    let
+        headers : List Http.Header
+        headers =
+            [ Http.header "X-Api-Key" options.token
+            ]
+
+        url : String
+        url =
+            "http://localhost:8080/games/create"
+
+        body : Json.Encode.Value
+        body =
+            Json.Encode.object
+                [ ( "name", Json.Encode.string options.name )
+                ]
+
+        cmd : Cmd msg
+        cmd =
+            Http.request
+                -- TODO: Change api to an environment variable
+                { method = "POST"
+                , headers = headers
+                , url = url
+                , body = Http.jsonBody body
+                , expect = Http.expectJson options.onResponse messageDecoder
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+    in
+    Effect.sendCmd cmd
+
+
+delete :
+    { onResponse : Result Http.Error Message -> msg
+    , token : String
+    , guid : String
+    }
+    -> Effect msg
+delete options =
+    let
+        headers : List Http.Header
+        headers =
+            [ Http.header "X-Api-Key" options.token
+            ]
+
+        url : String
+        url =
+            String.concat [ "http://localhost:8080/games/delete/", options.guid ]
 
         cmd : Cmd msg
         cmd =
