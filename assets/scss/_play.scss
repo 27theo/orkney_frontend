@@ -1,0 +1,45 @@
+@use "sass:color";
+
+body>#play {
+    position: absolute;
+
+    height: 100%;
+    width: 100%;
+
+    background-color: black;
+    color: whitesmoke;
+
+    display: flex;
+    flex-direction: column;
+
+    p {
+        margin: 0;
+    }
+
+    #header {
+        padding: 15px;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
+        align-items: center;
+        gap: 15px;
+
+        #name {
+            margin: 0;
+            font-style: italic;
+
+            &::before,
+            &::after {
+                content: "'";
+            }
+        }
+    }
+
+    #board {
+        padding: 15px;
+        flex: 1;
+
+        background-color: black;
+    }
+}

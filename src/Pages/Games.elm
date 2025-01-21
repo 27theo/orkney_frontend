@@ -74,6 +74,7 @@ type Msg
     | DeleteGame String
     | DeletedGame (Result Http.Error Api.Message)
     | CreateGame
+    | PlayGame String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -161,6 +162,11 @@ update msg model =
         CreateGame ->
             ( model
             , Effect.pushRoutePath Route.Path.Games_Create
+            )
+
+        PlayGame guid ->
+            ( model
+            , Effect.pushRoutePath (Route.Path.Play_Guid_ { guid = guid })
             )
 
 
@@ -369,6 +375,7 @@ playWatchStart model game =
             Html.button
                 [ Attr.id "play"
                 , Attr.title "Navigate to the board in order to play the game."
+                , Events.onClick (PlayGame game.guid)
                 ]
                 [ Html.text "Play" ]
 
