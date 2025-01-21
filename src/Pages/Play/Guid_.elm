@@ -123,12 +123,16 @@ viewHeader game =
             [ Html.text game.name ]
         , Html.button
             [ Events.onClick ReturnToGames ]
-            [ Html.text "Return to all" ]
+            [ Html.text "Return to all games" ]
         ]
 
 
 viewBoard : Game -> Model -> Html Msg
 viewBoard game _ =
+    let
+        _ =
+            Debug.log "state" game.state
+    in
     Html.div [ Attr.id "board" ]
-        [ Html.p [] [ Html.text ("Game state: " ++ game.state) ]
+        [ Html.p [] [ Html.text "Got state!" ]
         ]

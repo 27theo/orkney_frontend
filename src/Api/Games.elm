@@ -23,13 +23,24 @@ type alias Game =
     , created_at : String
     , players : List String
     , owner : String
-    , state : String
+    , state : State
     }
 
 
 type alias GamesList =
     { games : List Game
     }
+
+
+type alias PlayerState =
+    { uuid : String
+    , name : String
+    , gold : Int
+    }
+
+
+type alias State =
+    { player_states : List PlayerState }
 
 
 gameDecoder : Json.Decode.Decoder Game
@@ -41,13 +52,27 @@ gameDecoder =
         (Json.Decode.field "created_at" Json.Decode.string)
         (Json.Decode.field "players" (Json.Decode.list Json.Decode.string))
         (Json.Decode.field "owner" Json.Decode.string)
-        (Json.Decode.field "state" Json.Decode.string)
+        (Json.Decode.field "state" stateDecoder)
 
 
 gamesListDecoder : Json.Decode.Decoder GamesList
 gamesListDecoder =
     Json.Decode.map GamesList
         (Json.Decode.field "games" (Json.Decode.list gameDecoder))
+
+
+playerStateDecoder : Json.Decode.Decoder PlayerState
+playerStateDecoder =
+    Json.Decode.map3 PlayerState
+        (Json.Decode.field "uuid" Json.Decode.string)
+        (Json.Decode.field "name" Json.Decode.string)
+        (Json.Decode.field "gold" Json.Decode.int)
+
+
+stateDecoder : Json.Decode.Decoder State
+stateDecoder =
+    Json.Decode.map State
+        (Json.Decode.field "player_states" (Json.Decode.list playerStateDecoder))
 
 
 getAll :
