@@ -303,7 +303,7 @@ viewPlayerList model game =
                         [ Html.text u ]
                 )
                 game.players
-                |> List.intersperse (Html.span [] [ Html.text ", " ])
+                |> List.intersperse (Html.text ", ")
     in
     Html.span
         [ Attr.id "players" ]

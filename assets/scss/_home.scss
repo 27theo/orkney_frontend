@@ -220,7 +220,6 @@
             }
         }
 
-        a,
         #sword {
             width: min(200px, 30vw);
             height: auto;
@@ -228,10 +227,10 @@
             user-select: none;
 
             opacity: 0;
-            animation: fadeIn 3s ease-out;
-            animation-delay: 4s;
 
-            filter: brightness(0.75);
+            animation: fadeIn 3s ease-out 4s;
+
+            filter: brightness(0.65);
             transition: filter 0.4s ease-in-out;
 
             &:hover {
@@ -251,10 +250,8 @@
         fadeOut 12s ease-out 3s;
 
     p {
-        color: white;
-
         font-family: monospace;
         font-size: 1rem;
-        color: #555;
+        color: white;
     }
 }

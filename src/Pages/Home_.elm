@@ -125,7 +125,9 @@ viewJumbo () =
                     [ Html.p [ Attr.id "author" ] [ Html.text "Ferdinand Addis" ]
                     , Html.a [ Events.onClick (PushRoute Route.Path.Games) ]
                         [ Html.img
-                            [ Attr.id "sword", Attr.src "/assets/img/sword.png" ]
+                            [ Attr.id "sword"
+                            , Attr.src "/assets/img/sword.svg"
+                            ]
                             []
                         ]
                     ]
