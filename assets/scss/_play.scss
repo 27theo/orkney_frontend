@@ -25,6 +25,18 @@ body>#play {
         align-items: center;
         gap: 15px;
 
+        position: relative;
+
+        &::after {
+            content: "";
+            background-color: grey;
+            position: absolute;
+            bottom: 0;
+            left: 15px;
+            width: calc(100% - 30px);
+            height: 1px;
+        }
+
         #name {
             margin: 0;
             font-style: italic;
