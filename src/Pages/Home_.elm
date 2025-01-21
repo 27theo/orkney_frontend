@@ -108,7 +108,7 @@ viewPage shared =
                     [ Attr.id "skip"
                     , Events.onClick (PushRoute Route.Path.Games)
                     ]
-                    [ Html.text "Or click here to skip to the site!" ]
+                    [ Html.text "Or click this to skip to the site" ]
                 ]
             ]
 
@@ -135,7 +135,7 @@ viewJumbo () =
             ]
         , Html.div [ Attr.id "bottom" ]
             [ Html.p [ Attr.id "skip" ]
-                [ Html.text "(Press space to skip...)"
+                [ Html.text "(Press space to skip, click the sword to proceed...)"
                 ]
             ]
         ]

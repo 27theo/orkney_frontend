@@ -61,7 +61,7 @@
 }
 
 #enter {
-    height: 100%;
+    height: calc(100% - 45px);
     padding: 20px;
     display: flex;
     flex-direction: row;
@@ -100,7 +100,8 @@
         margin-right: 3px;
 
         font-size: 0.6em;
-        color: #bbb;
+        text-decoration: underline;
+        color: #888;
         transition: color 0.3s;
 
         &:hover {
