@@ -1,6 +1,7 @@
 @use "layout";
 @use "home";
 @use "games";
+@use "login";
 
 * {
     animation-fill-mode: forwards !important;
@@ -40,4 +41,12 @@ button {
 
 .a-center {
     align-items: center;
+}
+
+.g15 {
+    gap: 15px;
+}
+
+.w100 {
+    width: 100%;
 }

@@ -40,6 +40,7 @@ toLayout _ =
 type alias Model =
     { username : String
     , password : String
+    , showPassword : Bool
     , message : String
     , submitting : Bool
     , redirectTo : Route.Path.Path
@@ -62,6 +63,7 @@ init route () =
     in
     ( { username = ""
       , password = ""
+      , showPassword = False
       , message = ""
       , submitting = False
       , redirectTo = path
@@ -76,6 +78,8 @@ init route () =
 
 type Msg
     = UserUpdatedInput Field String
+    | ShowPassword
+    | HidePassword
     | UserSubmittedForm
     | LoginApiResponded (Result Http.Error Api.Login.TokenResponse)
 
@@ -95,6 +99,16 @@ update msg model =
 
         UserUpdatedInput Password value ->
             ( { model | password = value }
+            , Effect.none
+            )
+
+        ShowPassword ->
+            ( { model | showPassword = True }
+            , Effect.none
+            )
+
+        HidePassword ->
+            ( { model | showPassword = False }
             , Effect.none
             )
 
@@ -200,15 +214,38 @@ viewForm model =
                 []
             , Html.input
                 [ Attr.placeholder "Password"
-                , Attr.type_ "password"
+                , Attr.type_
+                    (if model.showPassword then
+                        "text"
+
+                     else
+                        "password"
+                    )
                 , Attr.value model.password
                 , Events.onInput (UserUpdatedInput Password)
                 ]
                 []
-            , Html.button
-                [ Attr.disabled model.submitting
-                , Attr.title "Log in."
+            , Html.div [ Attr.id "lcontrols" ]
+                [ Html.div []
+                    [ Html.span [] [ Html.text "show password" ]
+                    , Html.input
+                        [ Attr.type_ "checkbox"
+                        , Attr.checked model.showPassword
+                        , Events.onClick
+                            (if model.showPassword then
+                                HidePassword
+
+                             else
+                                ShowPassword
+                            )
+                        ]
+                        []
+                    ]
+                , Html.button
+                    [ Attr.disabled model.submitting
+                    , Attr.title "Log in."
+                    ]
+                    [ Html.text "Log in" ]
                 ]
-                [ Html.text "Log in" ]
             ]
         ]

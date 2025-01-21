@@ -1,0 +1,14 @@
+#lcontrols {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+
+    span {
+        color: grey;
+        margin-right: 10px;
+    }
+}

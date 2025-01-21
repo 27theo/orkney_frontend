@@ -92,6 +92,10 @@ button {
             font-family: Georgia;
             border: 1px solid #333;
         }
+
+        input[type="checkbox"] {
+            margin: 0;
+        }
     }
 }
 
