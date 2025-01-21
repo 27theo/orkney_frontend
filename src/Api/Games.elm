@@ -54,26 +54,13 @@ getAll :
     }
     -> Effect msg
 getAll options =
-    let
-        headers : List Http.Header
-        headers =
-            [ Http.header "X-Api-Key" options.token
-            ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.request
-                -- TODO: Change api to an environment variable
-                { method = "GET"
-                , headers = headers
-                , url = "http://localhost:8080/games/"
-                , body = Http.emptyBody
-                , expect = Http.expectJson options.onResponse gamesListDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
-    in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "GET"
+        , token = Just options.token
+        , endpoint = "/games/"
+        , body = Http.emptyBody
+        , expect = Http.expectJson options.onResponse gamesListDecoder
+        }
 
 
 getSingle :
@@ -83,30 +70,13 @@ getSingle :
     }
     -> Effect msg
 getSingle options =
-    let
-        headers : List Http.Header
-        headers =
-            [ Http.header "X-Api-Key" options.token
-            ]
-
-        url : String
-        url =
-            String.concat [ "http://localhost:8080/games/", options.guid ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.request
-                -- TODO: Change api to an environment variable
-                { method = "GET"
-                , headers = headers
-                , url = url
-                , body = Http.emptyBody
-                , expect = Http.expectJson options.onResponse gameDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
-    in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "GET"
+        , token = Just options.token
+        , endpoint = "/games/" ++ options.guid
+        , body = Http.emptyBody
+        , expect = Http.expectJson options.onResponse gameDecoder
+        }
 
 
 join :
@@ -116,30 +86,13 @@ join :
     }
     -> Effect msg
 join options =
-    let
-        headers : List Http.Header
-        headers =
-            [ Http.header "X-Api-Key" options.token
-            ]
-
-        url : String
-        url =
-            String.concat [ "http://localhost:8080/games/join/", options.guid ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.request
-                -- TODO: Change api to an environment variable
-                { method = "POST"
-                , headers = headers
-                , url = url
-                , body = Http.emptyBody
-                , expect = Http.expectJson options.onResponse messageDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
-    in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "POST"
+        , token = Just options.token
+        , endpoint = "/games/join/" ++ options.guid
+        , body = Http.emptyBody
+        , expect = Http.expectJson options.onResponse messageDecoder
+        }
 
 
 leave :
@@ -149,30 +102,13 @@ leave :
     }
     -> Effect msg
 leave options =
-    let
-        headers : List Http.Header
-        headers =
-            [ Http.header "X-Api-Key" options.token
-            ]
-
-        url : String
-        url =
-            String.concat [ "http://localhost:8080/games/leave/", options.guid ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.request
-                -- TODO: Change api to an environment variable
-                { method = "POST"
-                , headers = headers
-                , url = url
-                , body = Http.emptyBody
-                , expect = Http.expectJson options.onResponse messageDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
-    in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "POST"
+        , token = Just options.token
+        , endpoint = "/games/leave/" ++ options.guid
+        , body = Http.emptyBody
+        , expect = Http.expectJson options.onResponse messageDecoder
+        }
 
 
 create :
@@ -183,35 +119,19 @@ create :
     -> Effect msg
 create options =
     let
-        headers : List Http.Header
-        headers =
-            [ Http.header "X-Api-Key" options.token
-            ]
-
-        url : String
-        url =
-            "http://localhost:8080/games/create"
-
         body : Json.Encode.Value
         body =
             Json.Encode.object
                 [ ( "name", Json.Encode.string options.name )
                 ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.request
-                -- TODO: Change api to an environment variable
-                { method = "POST"
-                , headers = headers
-                , url = url
-                , body = Http.jsonBody body
-                , expect = Http.expectJson options.onResponse messageDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
     in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "POST"
+        , token = Just options.token
+        , endpoint = "/games/create"
+        , body = Http.jsonBody body
+        , expect = Http.expectJson options.onResponse messageDecoder
+        }
 
 
 delete :
@@ -221,27 +141,10 @@ delete :
     }
     -> Effect msg
 delete options =
-    let
-        headers : List Http.Header
-        headers =
-            [ Http.header "X-Api-Key" options.token
-            ]
-
-        url : String
-        url =
-            String.concat [ "http://localhost:8080/games/delete/", options.guid ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.request
-                -- TODO: Change api to an environment variable
-                { method = "POST"
-                , headers = headers
-                , url = url
-                , body = Http.emptyBody
-                , expect = Http.expectJson options.onResponse messageDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
-    in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "POST"
+        , token = Just options.token
+        , endpoint = "/games/delete/" ++ options.guid
+        , body = Http.emptyBody
+        , expect = Http.expectJson options.onResponse messageDecoder
+        }

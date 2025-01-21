@@ -20,14 +20,11 @@ post options =
                 [ ( "username", Json.Encode.string options.username )
                 , ( "password", Json.Encode.string options.password )
                 ]
-
-        cmd : Cmd msg
-        cmd =
-            Http.post
-                -- TODO: Change api to an environment variable
-                { url = "http://localhost:8080/auth/login"
-                , body = Http.jsonBody body
-                , expect = Http.expectJson options.onResponse tokenDecoder
-                }
     in
-    Effect.sendCmd cmd
+    Api.request
+        { method = "POST"
+        , token = Nothing
+        , endpoint = "/auth/login"
+        , body = Http.jsonBody body
+        , expect = Http.expectJson options.onResponse tokenDecoder
+        }
