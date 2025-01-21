@@ -23,6 +23,7 @@ type alias Game =
     , created_at : String
     , players : List String
     , owner : String
+    , state : String
     }
 
 
@@ -33,13 +34,14 @@ type alias GamesList =
 
 gameDecoder : Json.Decode.Decoder Game
 gameDecoder =
-    Json.Decode.map6 Game
+    Json.Decode.map7 Game
         (Json.Decode.field "guid" Json.Decode.string)
         (Json.Decode.field "name" Json.Decode.string)
         (Json.Decode.field "is_active" Json.Decode.bool)
         (Json.Decode.field "created_at" Json.Decode.string)
         (Json.Decode.field "players" (Json.Decode.list Json.Decode.string))
         (Json.Decode.field "owner" Json.Decode.string)
+        (Json.Decode.field "state" Json.Decode.string)
 
 
 gamesListDecoder : Json.Decode.Decoder GamesList

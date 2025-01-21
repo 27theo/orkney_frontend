@@ -92,7 +92,13 @@ subscriptions _ =
 
 view : Model -> View Msg
 view model =
-    { title = "Pages.Play.Guid_"
+    { title =
+        case model.game of
+            Nothing ->
+                "Loading game..."
+
+            Just g ->
+                g.name
     , body = [ viewBody model ]
     }
 
@@ -102,7 +108,7 @@ viewBody model =
     Html.div [ Attr.id "play" ] <|
         case model.game of
             Nothing ->
-                [ Html.text "Loading..." ]
+                []
 
             Just g ->
                 [ viewHeader g
@@ -124,5 +130,5 @@ viewHeader game =
 viewBoard : Game -> Model -> Html Msg
 viewBoard game _ =
     Html.div [ Attr.id "board" ]
-        [ Html.p [] [ Html.text ("This is the board for game: " ++ game.guid) ]
+        [ Html.p [] [ Html.text ("Game state: " ++ game.state) ]
         ]
