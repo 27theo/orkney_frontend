@@ -117,7 +117,7 @@ viewJumbo : () -> Html Msg
 viewJumbo () =
     -- TODO: Add link to the Wrigley sisters' performance
     Html.div [ Attr.id "jumbo" ]
-        [ Html.div [ Attr.id "content" ]
+        [ Html.div [ Attr.id "container" ]
             [ Html.p [ Attr.id "title" ] [ Html.text "Lords of Orkney" ]
             , Html.div [ Attr.id "under" ]
                 [ Html.p [ Attr.id "coder" ] [ Html.text "Theo Addis" ]
