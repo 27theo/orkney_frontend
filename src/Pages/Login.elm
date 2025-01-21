@@ -1,6 +1,8 @@
 module Pages.Login exposing (Model, Msg, page)
 
+import Api
 import Api.Login
+import Api.Signup
 import Dict
 import Effect exposing (Effect)
 import Html exposing (Html)
@@ -37,12 +39,28 @@ toLayout _ =
 -- INIT
 
 
-type alias Model =
+type alias Login =
     { username : String
     , password : String
     , showPassword : Bool
     , message : String
     , submitting : Bool
+    }
+
+
+type alias Signup =
+    { username : String
+    , password : String
+    , email : String
+    , showPassword : Bool
+    , message : String
+    , submitting : Bool
+    }
+
+
+type alias Model =
+    { login : Login
+    , signup : Signup
     , redirectTo : Route.Path.Path
     }
 
@@ -61,11 +79,21 @@ init route () =
                 _ ->
                     Route.Path.Games
     in
-    ( { username = ""
-      , password = ""
-      , showPassword = False
-      , message = ""
-      , submitting = False
+    ( { login =
+            { username = ""
+            , password = ""
+            , showPassword = False
+            , message = ""
+            , submitting = False
+            }
+      , signup =
+            { username = ""
+            , password = ""
+            , email = ""
+            , showPassword = False
+            , message = ""
+            , submitting = False
+            }
       , redirectTo = path
       }
     , Effect.none
@@ -77,64 +105,142 @@ init route () =
 
 
 type Msg
-    = UserUpdatedInput Field String
-    | ShowPassword
-    | HidePassword
-    | UserSubmittedForm
-    | LoginApiResponded (Result Http.Error Api.Login.TokenResponse)
+    = LoginUpdatedField LoginField String
+    | LoginShowPassword
+    | LoginHidePassword
+    | LoginSubmittedForm
+    | SignupUpdatedField SignupField String
+    | SignupSubmittedForm
+    | SignupShowPassword
+    | SignupHidePassword
+    | LoginApiResponded (Result Http.Error Api.TokenResponse)
+    | SignupApiResponded (Result Http.Error Api.TokenResponse)
 
 
-type Field
+type LoginField
     = Username
     | Password
 
 
+type SignupField
+    = NewUsername
+    | NewPassword
+    | NewEmail
+
+
 update : Msg -> Model -> ( Model, Effect Msg )
 update msg model =
+    let
+        login =
+            model.login
+
+        signup =
+            model.signup
+    in
     case msg of
-        UserUpdatedInput Username value ->
-            ( { model | username = value }
+        LoginUpdatedField Username value ->
+            ( { model | login = { login | username = value } }
             , Effect.none
             )
 
-        UserUpdatedInput Password value ->
-            ( { model | password = value }
+        LoginUpdatedField Password value ->
+            ( { model | login = { login | password = value } }
             , Effect.none
             )
 
-        ShowPassword ->
-            ( { model | showPassword = True }
+        LoginShowPassword ->
+            ( { model | login = { login | showPassword = True } }
             , Effect.none
             )
 
-        HidePassword ->
-            ( { model | showPassword = False }
+        LoginHidePassword ->
+            ( { model | login = { login | showPassword = False } }
             , Effect.none
             )
 
-        UserSubmittedForm ->
-            ( { model | submitting = True }
+        LoginSubmittedForm ->
+            ( { model | login = { login | submitting = True } }
             , Api.Login.post
                 { onResponse = LoginApiResponded
-                , username = model.username
-                , password = model.password
+                , username = model.login.username
+                , password = model.login.password
                 }
             )
 
         LoginApiResponded (Ok { token }) ->
-            ( { model | submitting = False }
+            ( { model | login = { login | submitting = False } }
             , Effect.signIn
                 { token = token
-                , username = model.username
+                , username = model.login.username
                 }
                 model.redirectTo
             )
 
         LoginApiResponded (Err error) ->
             ( { model
-                | submitting = False
-                , message = messageFromHttpError error
+                | login =
+                    { login
+                        | submitting = False
+                        , message = messageFromHttpError error
+                    }
               }
+            , Effect.none
+            )
+
+        SignupUpdatedField NewUsername value ->
+            ( { model | signup = { signup | username = value } }
+            , Effect.none
+            )
+
+        SignupUpdatedField NewPassword value ->
+            ( { model | signup = { signup | password = value } }
+            , Effect.none
+            )
+
+        SignupUpdatedField NewEmail value ->
+            ( { model | signup = { signup | email = value } }
+            , Effect.none
+            )
+
+        SignupSubmittedForm ->
+            ( { model | signup = { signup | submitting = True } }
+            , Api.Signup.post
+                { onResponse = SignupApiResponded
+                , username = model.signup.username
+                , password = model.signup.password
+                , email = model.signup.email
+                }
+            )
+
+        SignupApiResponded (Ok { token }) ->
+            ( { model | signup = { signup | submitting = False } }
+            , Effect.signIn
+                { token = token
+                , username = model.signup.username
+                }
+                model.redirectTo
+            )
+
+        SignupApiResponded (Err _) ->
+            ( { model
+                | signup =
+                    { signup
+                        | submitting = False
+                        , message = """I couldn't sign you up with those
+                        credentials. Your username and email must be unique -
+                        please try again."""
+                    }
+              }
+            , Effect.none
+            )
+
+        SignupShowPassword ->
+            ( { model | signup = { signup | showPassword = True } }
+            , Effect.none
+            )
+
+        SignupHidePassword ->
+            ( { model | signup = { signup | showPassword = False } }
             , Effect.none
             )
 
@@ -196,33 +302,36 @@ viewPage : Model -> Html Msg
 viewPage model =
     Html.div [ Attr.id "content" ]
         [ Html.p [ Attr.id "title" ] [ Html.text "Log in" ]
-        , viewForm model
-        , Html.p [] [ Html.text model.message ]
+        , viewLoginForm model
+        , Html.p [] [ Html.text model.login.message ]
+        , Html.p [ Attr.id "signup" ] [ Html.text "Alternatively, sign up:" ]
+        , viewSignupForm model
+        , Html.p [] [ Html.text model.signup.message ]
         ]
 
 
-viewForm : Model -> Html Msg
-viewForm model =
+viewLoginForm : Model -> Html Msg
+viewLoginForm model =
     Html.div [ Attr.id "form" ]
-        [ Html.form [ Events.onSubmit UserSubmittedForm ]
+        [ Html.form [ Events.onSubmit LoginSubmittedForm ]
             [ Html.input
                 [ Attr.placeholder "Username"
                 , Attr.type_ "username"
-                , Attr.value model.username
-                , Events.onInput (UserUpdatedInput Username)
+                , Attr.value model.login.username
+                , Events.onInput (LoginUpdatedField Username)
                 ]
                 []
             , Html.input
                 [ Attr.placeholder "Password"
                 , Attr.type_
-                    (if model.showPassword then
+                    (if model.login.showPassword then
                         "text"
 
                      else
                         "password"
                     )
-                , Attr.value model.password
-                , Events.onInput (UserUpdatedInput Password)
+                , Attr.value model.login.password
+                , Events.onInput (LoginUpdatedField Password)
                 ]
                 []
             , Html.div [ Attr.id "lcontrols" ]
@@ -230,22 +339,81 @@ viewForm model =
                     [ Html.span [] [ Html.text "show password" ]
                     , Html.input
                         [ Attr.type_ "checkbox"
-                        , Attr.checked model.showPassword
+                        , Attr.checked model.login.showPassword
                         , Events.onClick
-                            (if model.showPassword then
-                                HidePassword
+                            (if model.login.showPassword then
+                                LoginHidePassword
 
                              else
-                                ShowPassword
+                                LoginShowPassword
                             )
                         ]
                         []
                     ]
                 , Html.button
-                    [ Attr.disabled model.submitting
+                    [ Attr.disabled model.login.submitting
                     , Attr.title "Log in."
                     ]
                     [ Html.text "Log in" ]
+                ]
+            ]
+        ]
+
+
+viewSignupForm : Model -> Html Msg
+viewSignupForm model =
+    Html.div [ Attr.id "form" ]
+        [ Html.form [ Events.onSubmit SignupSubmittedForm ]
+            -- https://stackoverflow.com/a/23234498
+            [ Html.input [ Attr.type_ "text", Attr.style "display" "none" ] []
+            , Html.input [ Attr.type_ "password", Attr.style "display" "none" ] []
+            , Html.input
+                [ Attr.placeholder "New username"
+                , Attr.value model.signup.username
+                , Events.onInput (SignupUpdatedField NewUsername)
+                ]
+                []
+            , Html.input
+                [ Attr.placeholder "New email"
+                , Attr.type_ "email"
+                , Attr.value model.signup.email
+                , Events.onInput (SignupUpdatedField NewEmail)
+                ]
+                []
+            , Html.input
+                [ Attr.placeholder "Password"
+                , Attr.type_
+                    (if model.signup.showPassword then
+                        "text"
+
+                     else
+                        "password"
+                    )
+                , Attr.value model.signup.password
+                , Events.onInput (SignupUpdatedField NewPassword)
+                ]
+                []
+            , Html.div [ Attr.id "lcontrols" ]
+                [ Html.div []
+                    [ Html.span [] [ Html.text "show password" ]
+                    , Html.input
+                        [ Attr.type_ "checkbox"
+                        , Attr.checked model.signup.showPassword
+                        , Events.onClick
+                            (if model.signup.showPassword then
+                                SignupHidePassword
+
+                             else
+                                SignupShowPassword
+                            )
+                        ]
+                        []
+                    ]
+                , Html.button
+                    [ Attr.disabled model.signup.submitting
+                    , Attr.title "Sign up. You will be automatically logged in and redirected."
+                    ]
+                    [ Html.text "Sign up" ]
                 ]
             ]
         ]

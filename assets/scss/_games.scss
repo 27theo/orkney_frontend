@@ -1,19 +1,5 @@
 @use "sass:color";
 
-button {
-    padding: 7px 10px;
-
-    background-color: #333;
-    border: 1px #111 solid;
-    border-radius: 0;
-
-    color: white;
-}
-
-.user {
-    color: lightseagreen !important;
-}
-
 #buttons {
     display: flex;
     flex-direction: row;
