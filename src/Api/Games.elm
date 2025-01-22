@@ -1,6 +1,9 @@
 module Api.Games exposing
     ( Game
     , GamesList
+    , PlayerState
+    , State
+    , activate
     , create
     , delete
     , getAll
@@ -34,7 +37,7 @@ type alias GamesList =
 
 type alias PlayerState =
     { uuid : String
-    , name : String
+    , username : String
     , gold : Int
     }
 
@@ -65,7 +68,7 @@ playerStateDecoder : Json.Decode.Decoder PlayerState
 playerStateDecoder =
     Json.Decode.map3 PlayerState
         (Json.Decode.field "uuid" Json.Decode.string)
-        (Json.Decode.field "name" Json.Decode.string)
+        (Json.Decode.field "username" Json.Decode.string)
         (Json.Decode.field "gold" Json.Decode.int)
 
 
@@ -172,6 +175,22 @@ delete options =
         { method = "POST"
         , token = Just options.token
         , endpoint = "/games/delete/" ++ options.guid
+        , body = Http.emptyBody
+        , expect = Http.expectJson options.onResponse messageDecoder
+        }
+
+
+activate :
+    { onResponse : Result Http.Error Message -> msg
+    , token : String
+    , guid : String
+    }
+    -> Effect msg
+activate options =
+    Api.request
+        { method = "POST"
+        , token = Just options.token
+        , endpoint = "/games/activate/" ++ options.guid
         , body = Http.emptyBody
         , expect = Http.expectJson options.onResponse messageDecoder
         }

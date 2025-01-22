@@ -1,6 +1,8 @@
 import "./web-components/time-ago";
 import * as ports from "./ports";
 
+// https://github.com/elm-community/js-integration-examples/blob/master/websockets/index.html
+
 export const flags = ({ env }) => {
     // Called before our Elm application starts
     return {

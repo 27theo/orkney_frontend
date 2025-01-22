@@ -1,6 +1,6 @@
 module Pages.Play.Guid_ exposing (Model, Msg, page)
 
-import Api.Games exposing (Game)
+import Api.Games exposing (Game, PlayerState, State)
 import Auth
 import Effect exposing (Effect)
 import Html exposing (Html)
@@ -93,12 +93,14 @@ subscriptions _ =
 view : Model -> View Msg
 view model =
     { title =
-        case model.game of
+        (case model.game of
             Nothing ->
                 "Loading game..."
 
             Just g ->
-                g.name
+                "Playing '" ++ g.name ++ "'"
+        )
+            ++ " | Lords of Orkney"
     , body = [ viewBody model ]
     }
 
@@ -134,5 +136,17 @@ viewBoard game _ =
             Debug.log "state" game.state
     in
     Html.div [ Attr.id "board" ]
-        [ Html.p [] [ Html.text "Got state!" ]
+        [ Html.p [] [ viewState game.state ]
         ]
+
+
+viewState : State -> Html Msg
+viewState state =
+    let
+        viewPlayerState : PlayerState -> String
+        viewPlayerState ps =
+            String.concat [ "Name: ", ps.username, ", gold: ", String.fromInt ps.gold ]
+    in
+    List.map viewPlayerState state.player_states
+        |> List.map (\s -> Html.div [ Attr.id "playerState" ] [ Html.text s ])
+        |> Html.div [ Attr.id "state" ]

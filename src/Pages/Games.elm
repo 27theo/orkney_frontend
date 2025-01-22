@@ -75,6 +75,8 @@ type Msg
     | DeletedGame (Result Http.Error Api.Message)
     | CreateGame
     | PlayGame String
+    | StartGame String
+    | StartedGame (Result Http.Error Api.Message)
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -93,7 +95,11 @@ update msg model =
             , Effect.none
             )
 
-        ApiRespondedGames (Err _) ->
+        ApiRespondedGames (Err e) ->
+            let
+                _ =
+                    Debug.log "error" e
+            in
             ( { model
                 | games =
                     Just
@@ -167,6 +173,25 @@ update msg model =
         PlayGame guid ->
             ( model
             , Effect.pushRoutePath (Route.Path.Play_Guid_ { guid = guid })
+            )
+
+        StartGame guid ->
+            ( model
+            , Api.Games.activate
+                { onResponse = StartedGame
+                , token = model.user.token
+                , guid = guid
+                }
+            )
+
+        StartedGame (Ok _) ->
+            ( model
+            , Effect.sendMsg ApiGetGames
+            )
+
+        StartedGame (Err _) ->
+            ( { model | message = Just (Success "Could not activate game. Please try again") }
+            , Effect.sendMsg ApiGetGames
             )
 
 
@@ -392,6 +417,7 @@ playWatchStart model game =
             Html.button
                 [ Attr.id "start"
                 , Attr.title "Start the game. Players will no longer be able to join."
+                , Events.onClick (StartGame game.guid)
                 ]
                 [ Html.text "Start" ]
 
