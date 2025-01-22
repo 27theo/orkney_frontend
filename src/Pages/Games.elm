@@ -95,11 +95,7 @@ update msg model =
             , Effect.none
             )
 
-        ApiRespondedGames (Err e) ->
-            let
-                _ =
-                    Debug.log "error" e
-            in
+        ApiRespondedGames (Err _) ->
             ( { model
                 | games =
                     Just

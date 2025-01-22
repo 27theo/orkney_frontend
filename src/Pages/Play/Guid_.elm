@@ -131,10 +131,6 @@ viewHeader game =
 
 viewBoard : Game -> Model -> Html Msg
 viewBoard game _ =
-    let
-        _ =
-            Debug.log "state" game.state
-    in
     Html.div [ Attr.id "board" ]
         [ Html.p [] [ viewState game.state ]
         ]
