@@ -280,7 +280,7 @@ viewGamesList model games =
             in
             Html.div [ Attr.id "games" ]
                 (List.concat
-                    [ viewGameSet model yourOngoing "Ongoing games"
+                    [ viewGameSet model yourOngoing "Your ongoing games"
                     , viewGameSet model yourGames "Ready to start"
                     , viewGameSet model joinableGames "Joinable"
                     , viewGameSet model others "Other players' ongoing games"
