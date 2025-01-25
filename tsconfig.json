@@ -1,0 +1,14 @@
+{
+  "files": [
+    "src/interop.ts",
+    "src/ports.ts"
+  ],
+  "compilerOptions": {
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "noEmit": true,
+    "strict": true
+  }
+}

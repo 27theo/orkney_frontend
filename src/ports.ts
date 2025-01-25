@@ -1,4 +1,4 @@
-export function sendToLocalStorage({ key, value }) {
+export function sendToLocalStorage({ key, value }: Record<string, string>) {
     window.localStorage[key] = JSON.stringify(value);
 }
 
@@ -11,7 +11,7 @@ export function skipAnimations() {
 }
 
 export function startMusic() {
-    var audio = document.getElementById("audio");
+    var audio = <HTMLAudioElement>document.getElementById("audio");
     if (audio == null) {
         audio = document.createElement("audio");
     }
@@ -29,7 +29,7 @@ export function startMusic() {
 }
 
 export function fadeOutMusic() {
-    const audio = document.getElementById("audio");
+    const audio = <HTMLAudioElement>document.getElementById("audio");
     if (audio == null) return;
     var time = 0;
     const fadeAudio = setInterval(() => {
