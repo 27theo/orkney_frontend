@@ -1,4 +1,7 @@
-export function sendToLocalStorage({ key, value }: Record<string, string>) {
+import { ElmLand } from "./interop";
+
+export function sendToLocalStorage(data: unknown) {
+    const { key, value } = data as Record<string, string>;
     window.localStorage[key] = JSON.stringify(value);
 }
 
@@ -45,4 +48,15 @@ export function fadeOutMusic() {
             clearInterval(fadeAudio);
         }
     }, 100);
+}
+
+export function watchGames(app: ElmLand.App) {
+    if (globalThis.watchGames == undefined) {
+        globalThis.watchGames = new WebSocket("ws://localhost:8080/ws/games");
+        globalThis.watchGames.addEventListener("message", (event) => {
+            app.ports?.watchGamesReceiver?.send?.(event.data);
+        });
+        globalThis.watchGames.onclose =
+            () => { globalThis.watchGames = undefined; };
+    }
 }

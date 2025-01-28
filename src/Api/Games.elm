@@ -6,6 +6,7 @@ module Api.Games exposing
     , activate
     , create
     , delete
+    , gamesListDecoder
     , getAll
     , getSingle
     , join

@@ -1,4 +1,4 @@
-module Pages.Games exposing (Model, Msg, page)
+port module Pages.Games exposing (Model, Msg, page)
 
 import Api
 import Api.Games exposing (Game, GamesList)
@@ -8,6 +8,7 @@ import Html exposing (Html)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Http
+import Json.Decode
 import Layouts
 import Page exposing (Page)
 import Route exposing (Route)
@@ -35,6 +36,16 @@ toLayout user _ =
 
 
 
+-- PORTS
+
+
+port watchGames : () -> Cmd msg
+
+
+port watchGamesReceiver : (String -> msg) -> Sub msg
+
+
+
 -- INIT
 
 
@@ -56,7 +67,10 @@ init user () =
       , games = Nothing
       , message = Nothing
       }
-    , Effect.sendMsg ApiGetGames
+    , Effect.batch
+        [ Effect.sendMsg ApiGetGames
+        , Effect.sendCmd (watchGames ())
+        ]
     )
 
 
@@ -77,6 +91,7 @@ type Msg
     | PlayGame String
     | StartGame String
     | StartedGame (Result Http.Error Api.Message)
+    | ApiUpdatedGames String
 
 
 update : Msg -> Model -> ( Model, Effect Msg )
@@ -186,9 +201,31 @@ update msg model =
             )
 
         StartedGame (Err _) ->
-            ( { model | message = Just (Success "Could not activate game. Please try again") }
+            ( { model | message = Just (Success "Could not activate game. Please try again.") }
             , Effect.sendMsg ApiGetGames
             )
+
+        ApiUpdatedGames message ->
+            let
+                _ =
+                    Debug.log "updated games"
+            in
+            case
+                Json.Decode.decodeString Api.Games.gamesListDecoder message
+            of
+                Ok games ->
+                    ( model
+                    , Effect.sendMsg (ApiRespondedGames (Ok games))
+                    )
+
+                Err _ ->
+                    ( { model
+                        | games =
+                            Just
+                                (Err "Could not parse WebSocket response from server. Please reload the page!")
+                      }
+                    , Effect.none
+                    )
 
 
 
@@ -197,7 +234,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    watchGamesReceiver ApiUpdatedGames
 
 
 

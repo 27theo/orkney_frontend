@@ -1,20 +1,27 @@
-import * as Ports from './ports';
+import * as Ports from "./ports";
 
 // Types for Elm Land interop functions
-namespace ElmLand {
-    export type FlagsFunction =
-        ({ env }: { env: Record<string, string> }) => unknown
-
-    export type OnReadyFunction = ({ env, app }: {
-        env: Record<string, string>,
-        app: { ports?: Record<string, Port> }
-    }) => void
-
+export namespace ElmLand {
     export type Port = {
         subscribe?: (callback: (data: unknown) => void) => void,
         unsubscribe?: (callback: (data: unknown) => void) => void,
         send?: (data: unknown) => void
     }
+
+    export type Env = Record<string, string>
+    export type App = { ports?: Record<string, Port> }
+
+    export type FlagsFunction =
+        ({ env }: { env: Record<string, string> }) => unknown
+
+    export type OnReadyFunction = ({ env, app }: {
+        env: Env,
+        app: App
+    }) => void
+}
+
+declare global {
+    var watchGames: WebSocket | undefined;
 }
 
 export const flags: ElmLand.FlagsFunction = () => {
@@ -27,13 +34,8 @@ export const flags: ElmLand.FlagsFunction = () => {
 export const onReady: ElmLand.OnReadyFunction = ({ app, env }) => {
     // Called after our Elm application starts
     app.ports?.skipAnimations?.subscribe?.(Ports.skipAnimations);
-
     app.ports?.startMusic?.subscribe?.(Ports.startMusic);
     app.ports?.fadeOutMusic?.subscribe?.(Ports.fadeOutMusic);
-
-    app.ports?.sendToLocalStorage?.subscribe?.(
-        (data: unknown) => {
-            Ports.sendToLocalStorage(data as Record<string, string>);
-        }
-    );
+    app.ports?.sendToLocalStorage?.subscribe?.(Ports.sendToLocalStorage);
+    app.ports?.watchGames?.subscribe?.(() => Ports.watchGames(app));
 }
