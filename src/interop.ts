@@ -1,3 +1,4 @@
+import "./web-components/time-ago.ts";
 import * as Ports from "./ports";
 
 // Types for Elm Land interop functions

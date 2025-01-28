@@ -1,7 +1,8 @@
 {
   "files": [
     "src/interop.ts",
-    "src/ports.ts"
+    "src/ports.ts",
+    "src/web-components/time-ago.ts"
   ],
   "compilerOptions": {
     "lib": [
